@@ -1,0 +1,142 @@
+﻿using Promotinator.Engine.Utils;
+
+namespace Promotinator.Engine;
+
+public class Board {
+    public Color Turn;
+    public CastlingRights CastlingRights;
+    public Coord? EnPassantSquare;
+
+    // (file, rank), (0, 0) = a1, (7, 7) = h8.
+    public Piece?[,] Pieces = new Piece?[8, 8];
+
+    public Board(FENBoardState state) {
+        Init(state);
+    }
+
+    public Board(string fen) {
+        FENBoardState state = FENUtil.ParseFEN(fen);
+        Init(state);
+    }
+
+    public void MakeMove(Move move) {
+        Piece piece = Pieces[move.From.File, move.From.Rank].Value;
+
+        // Check for en passant square
+        Coord? newEnPassantSquare = null;
+        if (piece.Type == PieceType.Pawn && Math.Abs(move.From.Rank - move.To.Rank) == 2) {
+            int rank = Turn == Color.White ? move.From.Rank + 1 : move.From.Rank - 1;
+            newEnPassantSquare = new(move.From.File, rank);
+        }
+
+        EnPassantSquare = newEnPassantSquare;
+
+        // Update queen side castling rights
+        if (Turn == Color.White) {
+            if (piece.Is(PieceType.King)) {
+                CastlingRights &= ~CastlingRights.WhiteBoth;
+            }
+
+            if (piece.Is(PieceType.Rook) && move.From.File == 0) {
+                CastlingRights &= ~CastlingRights.WhiteQueenside;
+            }
+
+            if (piece.Is(PieceType.Rook) && move.From.File == 7) {
+                CastlingRights &= ~CastlingRights.WhiteKingside;
+            }
+        }
+        else {
+            if (piece.Is(PieceType.King)) {
+                CastlingRights &= ~CastlingRights.BlackBoth;
+            }
+
+            if (piece.Is(PieceType.Rook) && move.From.File == 0) {
+                CastlingRights &= ~CastlingRights.BlackQueenside;
+            }
+
+            if (piece.Is(PieceType.Rook) && move.From.File == 7) {
+                CastlingRights &= ~CastlingRights.BlackKingside;
+            }
+        }
+
+        Pieces[move.To.File, move.To.Rank] = Pieces[move.From.File, move.From.Rank];
+        Pieces[move.From.File, move.From.Rank] = null;
+
+        // Remove captured en passant pawn.
+        if (move.IsEnPassantCapture) {
+            Pieces[move.To.File, move.From.Rank] = null;
+        }
+
+        // Castling
+        if (move.IsKingsideCastling) {
+            int rank = Turn == Color.White ? 0 : 7;
+            Pieces[5, rank] = Pieces[7, rank];
+            Pieces[7, rank] = null;
+        }
+        else if (move.IsQueensideCastling) {
+            int rank = Turn == Color.White ? 0 : 7;
+            Pieces[3, rank] = Pieces[0, rank];
+            Pieces[0, rank] = null;
+        }
+
+        Turn = Turn == Color.White ? Color.Black : Color.White;
+    }
+
+    public void UndoMove(Move move, Coord? lastEnPassantSquare, CastlingRights lastCastlingRights) {
+        Turn = Turn == Color.White ? Color.Black : Color.White;
+
+        // Place moved piece back
+        Pieces[move.From.File, move.From.Rank] = Pieces[move.To.File, move.To.Rank];
+
+        if (move.IsEnPassantCapture) {
+            Pieces[move.To.File, move.From.Rank] = move.CapturedPiece;
+            Pieces[move.To.File, move.To.Rank] = null;
+            EnPassantSquare = new(move.To.File, move.To.Rank);
+        }
+        else if (move.IsKingsideCastling) {
+            int rank = Turn == Color.White ? 0 : 7;
+            Pieces[7, rank] = Pieces[5, rank];
+            Pieces[5, rank] = null;
+            Pieces[move.To.File, move.To.Rank] = null;
+        }
+        else if (move.IsQueensideCastling) {
+            int rank = Turn == Color.White ? 0 : 7;
+            Pieces[0, rank] = Pieces[3, rank];
+            Pieces[3, rank] = null;
+            Pieces[move.To.File, move.To.Rank] = null;
+        }
+        else {
+            Pieces[move.To.File, move.To.Rank] = move.CapturedPiece;
+        }
+
+        EnPassantSquare = lastEnPassantSquare;
+        CastlingRights = lastCastlingRights;
+    }
+
+    internal bool IsEmpty(int file, int rank) {
+        return !Pieces[file, rank].HasValue;
+    }
+
+    internal bool Has(CastlingRights rights) {
+        return (CastlingRights & rights) != 0;
+    }
+
+    internal bool IsEnemy(int file, int rank) {
+#pragma warning disable CS8629 // Nullable value type may be null.
+        return Pieces[file, rank].HasValue && Pieces[file, rank].Value.Color != Turn;
+#pragma warning restore CS8629 // Nullable value type may be null.
+    }
+
+    internal bool IsFriendly(int file, int rank) {
+#pragma warning disable CS8629 // Nullable value type may be null.
+        return Pieces[file, rank].HasValue && Pieces[file, rank].Value.Color == Turn;
+#pragma warning restore CS8629 // Nullable value type may be null.
+    }
+
+    private void Init(FENBoardState state) {
+        Turn = state.Turn;
+        CastlingRights = state.CastlingRights;
+        Pieces = state.Pieces;
+        EnPassantSquare = state.EnPassantSquare;
+    }
+}

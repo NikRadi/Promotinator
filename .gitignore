@@ -1,0 +1,10 @@
+# Build results
+[Bb]in/
+[Dd]ebug/
+[Oo]bj/
+
+# VS Code
+.vscode/
+
+# Files built by C# compiler
+*.pdb
