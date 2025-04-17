@@ -47,13 +47,21 @@ public static class MoveGenerator {
         int startRank = board.Turn == Color.White ? 1 : 6;
         int direction = board.Turn == Color.White ? 1 : -1;
         int forward = rank + direction;
+        bool isPromotion = forward == 0 || forward == 7;
 
         // One square forward
         if (board.IsEmpty(file, forward)) {
-            moves.Add(new() {
+            Move move = new() {
                 From = new(file, rank),
                 To = new(file, forward)
-            });
+            };
+
+            if (isPromotion) {
+                AddPawnPromotionMoves(moves, move);
+            }
+            else {
+                moves.Add(move);
+            }
         }
 
         // Two squares forward
@@ -66,20 +74,34 @@ public static class MoveGenerator {
 
         // Capture left
         if (file > 0 && board.IsEnemy(file - 1, forward)) {
-            moves.Add(new() {
+            Move move =new() {
                 From = new(file, rank),
                 To = new(file - 1, forward),
                 CapturedPiece = board.Pieces[file - 1, forward]
-            });
+            };
+
+            if (isPromotion) {
+                AddPawnPromotionMoves(moves, move);
+            }
+            else {
+                moves.Add(move);
+            }
         }
 
         // Capture right
         if (file < 7 && board.IsEnemy(file + 1, forward)) {
-            moves.Add(new() {
+            Move move = new() {
                 From = new(file, rank),
                 To = new(file + 1, forward),
                 CapturedPiece = board.Pieces[file + 1, forward]
-            });
+            };
+
+            if (isPromotion) {
+                AddPawnPromotionMoves(moves, move);
+            }
+            else {
+                moves.Add(move);
+            }
         }
 
         // En passant
@@ -284,5 +306,19 @@ public static class MoveGenerator {
 
         board.UndoMove(move, lastEnPassantSquare, lastCastlingRights);
         return isLegalMove;
+    }
+
+    private static void AddPawnPromotionMoves(List<Move> moves, Move move) {
+        move.PromotionType = PromotionType.Queen;
+        moves.Add(move);
+
+        move.PromotionType = PromotionType.Rook;
+        moves.Add(move);
+
+        move.PromotionType = PromotionType.Knight;
+        moves.Add(move);
+
+        move.PromotionType = PromotionType.Bishop;
+        moves.Add(move);
     }
 }

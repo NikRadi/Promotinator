@@ -79,6 +79,27 @@ public class Board {
             Pieces[0, rank] = null;
         }
 
+        // Handle pawn promotion
+        if (move.PromotionType != PromotionType.None) {
+            Piece p = Pieces[move.To.File, move.To.Rank].Value;
+            switch (move.PromotionType) {
+                case PromotionType.Queen:
+                    p.Type = PieceType.Queen;
+                    break;
+                case PromotionType.Rook:
+                    p.Type = PieceType.Rook;
+                    break;
+                case PromotionType.Knight:
+                    p.Type = PieceType.Knight;
+                    break;
+                case PromotionType.Bishop:
+                    p.Type = PieceType.Bishop;
+                    break;
+            }
+
+            Pieces[move.To.File, move.To.Rank] = p;
+        }
+
         Turn = Turn == Color.White ? Color.Black : Color.White;
     }
 
@@ -107,6 +128,12 @@ public class Board {
         }
         else {
             Pieces[move.To.File, move.To.Rank] = move.CapturedPiece;
+
+            if (move.PromotionType != PromotionType.None) {
+                Piece p = Pieces[move.From.File, move.From.Rank].Value;
+                p.Type = PieceType.Pawn;
+                Pieces[move.From.File, move.From.Rank] = p;
+            }
         }
 
         EnPassantSquare = lastEnPassantSquare;
@@ -122,15 +149,11 @@ public class Board {
     }
 
     internal bool IsEnemy(int file, int rank) {
-#pragma warning disable CS8629 // Nullable value type may be null.
         return Pieces[file, rank].HasValue && Pieces[file, rank].Value.Color != Turn;
-#pragma warning restore CS8629 // Nullable value type may be null.
     }
 
     internal bool IsFriendly(int file, int rank) {
-#pragma warning disable CS8629 // Nullable value type may be null.
         return Pieces[file, rank].HasValue && Pieces[file, rank].Value.Color == Turn;
-#pragma warning restore CS8629 // Nullable value type may be null.
     }
 
     private void Init(FENBoardState state) {
