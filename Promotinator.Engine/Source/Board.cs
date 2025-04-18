@@ -38,7 +38,7 @@ public class Board {
                 CastlingRights &= ~CastlingRights.WhiteBoth;
             }
 
-            if (piece.Is(PieceType.Rook) && move.From.File == 0) {
+            if (piece.Is(PieceType.Rook) && move.From.Rank == 0) {
                 if (move.From.File == 0) CastlingRights &= ~CastlingRights.WhiteQueenside;
                 if (move.From.File == 7) CastlingRights &= ~CastlingRights.WhiteKingside;
             }
@@ -48,7 +48,7 @@ public class Board {
                 CastlingRights &= ~CastlingRights.BlackBoth;
             }
 
-            if (piece.Is(PieceType.Rook) && move.From.File == 0) {
+            if (piece.Is(PieceType.Rook) && move.From.Rank == 7) {
                 if (move.From.File == 0) CastlingRights &= ~CastlingRights.BlackQueenside;
                 if (move.From.File == 7) CastlingRights &= ~CastlingRights.BlackKingside;
             }
