@@ -212,12 +212,10 @@ public static class MoveGenerator {
 
             while (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
                 if (board.IsEmpty(newFile, newRank)) {
-                    if (!onlyAttack) {
-                        moves.Add(new() {
-                            From = new(file, rank),
-                            To = new(newFile, newRank)
-                        });
-                    }
+                    moves.Add(new() {
+                        From = new(file, rank),
+                        To = new(newFile, newRank)
+                    });
                 }
                 else if (board.IsEnemy(newFile, newRank)) {
                     moves.Add(new() {
