@@ -3,11 +3,20 @@ namespace Promotinator.Engine;
 public static class MoveGenerator {
     public static List<Move> GenerateMoves(Board board) {
         List<Move> moves = GeneratePseudoLegalMoves(board);
+
+        int moveIndex = moves.FindIndex(m => m.CapturedPiece.HasValue && m.CapturedPiece.Value.Type == PieceType.King);
+        if (moveIndex > 0) {
+            board.ColorOfPlayerInCheck = moves[moveIndex].CapturedPiece.Value.Color;
+        }
+        else {
+            board.ColorOfPlayerInCheck = null;
+        }
+
         moves.RemoveAll(move => !IsLegalMove(board, move));
         return moves;
     }
 
-    private static List<Move> GeneratePseudoLegalMoves(Board board) {
+    private static List<Move> GeneratePseudoLegalMoves(Board board, bool onlyAttack = false) {
         List<Move> moves = [];
 
         for (int file = 0; file < 8; ++file) {
@@ -17,23 +26,26 @@ public static class MoveGenerator {
                 if (piece.HasValue && piece.Value.Color == board.Turn) {
                     switch (piece.Value.Type) {
                         case PieceType.Pawn:
-                            GeneratePawnMoves(board, moves, file, rank);
+                            GeneratePawnMoves(board, moves, file, rank, onlyAttack);
                             break;
                         case PieceType.Bishop:
-                            GenerateBishopMoves(board, moves, file, rank);
+                            GenerateBishopMoves(board, moves, file, rank, onlyAttack);
                             break;
                         case PieceType.Knight:
-                            GenerateKnightMoves(board, moves, file, rank);
+                            GenerateKnightMoves(board, moves, file, rank, onlyAttack);
                             break;
                         case PieceType.Rook:
-                            GenerateRookMoves(board, moves, file, rank);
+                            GenerateRookMoves(board, moves, file, rank, onlyAttack);
                             break;
                         case PieceType.Queen:
-                            GenerateBishopMoves(board, moves, file, rank);
-                            GenerateRookMoves(board, moves, file, rank);
+                            GenerateBishopMoves(board, moves, file, rank, onlyAttack);
+                            GenerateRookMoves(board, moves, file, rank, onlyAttack);
                             break;
                         case PieceType.King:
-                            GenerateKingMoves(board, moves, file, rank);
+                            if (!onlyAttack) {
+                                GenerateKingMoves(board, moves, file, rank, onlyAttack);
+                            }
+
                             break;
                     }
                 }
@@ -43,14 +55,14 @@ public static class MoveGenerator {
         return moves;
     }
 
-    private static void GeneratePawnMoves(Board board, List<Move> moves, int file, int rank) {
+    private static void GeneratePawnMoves(Board board, List<Move> moves, int file, int rank, bool onlyAttack = false) {
         int startRank = board.Turn == Color.White ? 1 : 6;
         int direction = board.Turn == Color.White ? 1 : -1;
         int forward = rank + direction;
         bool isPromotion = forward == 0 || forward == 7;
 
         // One square forward
-        if (board.IsEmpty(file, forward)) {
+        if (!onlyAttack && board.IsEmpty(file, forward)) {
             Move move = new() {
                 From = new(file, rank),
                 To = new(file, forward)
@@ -65,7 +77,7 @@ public static class MoveGenerator {
         }
 
         // Two squares forward
-        if (rank == startRank && board.IsEmpty(file, forward) && board.IsEmpty(file, forward + direction)) {
+        if (!onlyAttack && rank == startRank && board.IsEmpty(file, forward) && board.IsEmpty(file, forward + direction)) {
             moves.Add(new() {
                 From = new(file, rank),
                 To = new(file, forward + direction)
@@ -73,7 +85,7 @@ public static class MoveGenerator {
         }
 
         // Capture left
-        if (file > 0 && board.IsEnemy(file - 1, forward)) {
+        if (file > 0 && (board.IsEnemy(file - 1, forward) || onlyAttack)) {
             Move move =new() {
                 From = new(file, rank),
                 To = new(file - 1, forward),
@@ -89,7 +101,7 @@ public static class MoveGenerator {
         }
 
         // Capture right
-        if (file < 7 && board.IsEnemy(file + 1, forward)) {
+        if (file < 7 && (board.IsEnemy(file + 1, forward) || onlyAttack)) {
             Move move = new() {
                 From = new(file, rank),
                 To = new(file + 1, forward),
@@ -128,7 +140,7 @@ public static class MoveGenerator {
         }
     }
 
-    private static void GenerateBishopMoves(Board board, List<Move> moves, int file, int rank) {
+    private static void GenerateBishopMoves(Board board, List<Move> moves, int file, int rank, bool onlyAttack = false) {
         int[] rankOffsets = [-1, -1, 1, 1];
         int[] fileOffsets = [-1, 1, -1, 1];
 
@@ -163,7 +175,7 @@ public static class MoveGenerator {
         }
     }
 
-    private static void GenerateKnightMoves(Board board, List<Move> moves, int file, int rank) {
+    private static void GenerateKnightMoves(Board board, List<Move> moves, int file, int rank, bool onlyAttack = false) {
         int[] rankOffsets = [-2, -2, -1, -1, 1, 1, 2, 2];
         int[] fileOffsets = [-1, 1, -2, 2, -2, 2, -1, 1];
 
@@ -171,17 +183,26 @@ public static class MoveGenerator {
             int newFile = file + fileOffsets[i];
             int newRank = rank + rankOffsets[i];
 
-            if (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8 && !board.IsFriendly(newFile, newRank)) {
-                moves.Add(new() {
-                    From = new(file, rank),
-                    To = new(newFile, newRank),
-                    CapturedPiece = board.Pieces[newFile, newRank]
-                });
+            if (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
+                if (board.IsEmpty(newFile, newRank)) {
+                    moves.Add(new() {
+                        From = new(file, rank),
+                        To = new(newFile, newRank),
+                    });
+                }
+
+                if (board.IsEnemy(newFile, newRank)) {
+                    moves.Add(new() {
+                        From = new(file, rank),
+                        To = new(newFile, newRank),
+                        CapturedPiece = board.Pieces[newFile, newRank]
+                    });
+                }
             }
         }
     }
 
-    private static void GenerateRookMoves(Board board, List<Move> moves, int file, int rank) {
+    private static void GenerateRookMoves(Board board, List<Move> moves, int file, int rank, bool onlyAttack = false) {
         int[] rankOffsets = [-1, 0, 1, 0];
         int[] fileOffsets = [0, 1, 0, -1];
 
@@ -191,10 +212,12 @@ public static class MoveGenerator {
 
             while (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
                 if (board.IsEmpty(newFile, newRank)) {
-                    moves.Add(new() {
-                        From = new(file, rank),
-                        To = new(newFile, newRank)
-                    });
+                    if (!onlyAttack) {
+                        moves.Add(new() {
+                            From = new(file, rank),
+                            To = new(newFile, newRank)
+                        });
+                    }
                 }
                 else if (board.IsEnemy(newFile, newRank)) {
                     moves.Add(new() {
@@ -216,7 +239,7 @@ public static class MoveGenerator {
         }
     }
 
-    private static void GenerateKingMoves(Board board, List<Move> moves, int file, int rank) {
+    private static void GenerateKingMoves(Board board, List<Move> moves, int file, int rank, bool onlyAttack = false) {
         int[] rankOffsets = [-1, -1, -1, 0, 0, 1, 1, 1];
         int[] fileOffsets = [-1, 0, 1, -1, 1, -1, 0, 1];
 
@@ -224,67 +247,86 @@ public static class MoveGenerator {
             int newFile = file + fileOffsets[i];
             int newRank = rank + rankOffsets[i];
 
-            if (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8 && !board.IsFriendly(newFile, newRank)) {
-                moves.Add(new() {
-                    From = new(file, rank),
-                    To = new(newFile, newRank),
-                    CapturedPiece = board.Pieces[newFile, newRank]
-                });
+            if (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
+                if (!onlyAttack && board.IsEmpty(newFile, newRank)) {
+                    moves.Add(new() {
+                        From = new(file, rank),
+                        To = new(newFile, newRank),
+                    });
+                }
+
+                if (board.IsEnemy(newFile, newRank)) {
+                    moves.Add(new() {
+                        From = new(file, rank),
+                        To = new(newFile, newRank),
+                        CapturedPiece = board.Pieces[newFile, newRank]
+                    });
+                }
             }
         }
 
         // Castling
-        if (board.Turn == Color.White) {
-            if (board.Has(CastlingRights.WhiteKingside) && board.IsEmpty(5, 0) && board.IsEmpty(6, 0)) {
-                // Check if opponent can attack square (5, 0) or (6, 0).
-                Move move1 = new() { From = new(4, 0), To = new (5, 0) };
-                Move move2 = new() { From = new(4, 0), To = new (6, 0) };
-                if (IsLegalMove(board, move1) && IsLegalMove(board, move2)) {
-                    moves.Add(new() {
-                        From = new(4, 0),
-                        To = new(6, 0),
-                        IsKingsideCastling = true
-                    });
-                }
-            }
+        if (!onlyAttack) {
+            if (board.Turn == Color.White) {
+                if (board.Has(CastlingRights.WhiteKingside) && board.IsEmpty(5, 0) && board.IsEmpty(6, 0) && board.ColorOfPlayerInCheck != board.Turn) {
+                    board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
+                    List<Move> enemyMoves = GeneratePseudoLegalMoves(board, onlyAttack: true);
+                    board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
 
-            if (board.Has(CastlingRights.WhiteQueenside) && board.IsEmpty(3, 0) && board.IsEmpty(2, 0) && board.IsEmpty(1, 0)) {
-                // Check if opponent can attack square (3, 0) or (2, 0).
-                Move move1 = new() { From = new(4, 0), To = new (3, 0) };
-                Move move2 = new() { From = new(4, 0), To = new (2, 0) };
-                if (IsLegalMove(board, move1) && IsLegalMove(board, move2)) {
-                    moves.Add(new() {
-                        From = new(4, 0),
-                        To = new(2, 0),
-                        IsQueensideCastling = true
-                    });
+                    // Check if opponent can attack square (5, 0) or (6, 0).
+                    if (!enemyMoves.Exists(move => (move.To.File == 4 || move.To.File == 5 || move.To.File == 6) && move.To.Rank == 0)) {
+                        moves.Add(new() {
+                            From = new(4, 0),
+                            To = new(6, 0),
+                            IsKingsideCastling = true
+                        });
+                    }
                 }
-            }
-        }
-        else {
-            if (board.Has(CastlingRights.BlackKingside) && board.IsEmpty(5, 7) && board.IsEmpty(6, 7)) {
-                // Check if opponent can attack square (5, 7) or (6, 7).
-                Move move1 = new() { From = new(4, 7), To = new (5, 7) };
-                Move move2 = new() { From = new(4, 7), To = new (6, 7) };
-                if (IsLegalMove(board, move1) && IsLegalMove(board, move2)) {
-                    moves.Add(new() {
-                        From = new(4, 7),
-                        To = new(6, 7),
-                        IsKingsideCastling = true
-                    });
-                }
-            }
 
-            if (board.Has(CastlingRights.BlackQueenside) && board.IsEmpty(3, 7) && board.IsEmpty(2, 7) && board.IsEmpty(1, 7)) {
-                // Check if opponent can attack square (3, 7) or (2, 7).
-                Move move1 = new() { From = new(4, 7), To = new (3, 7) };
-                Move move2 = new() { From = new(4, 7), To = new (2, 7) };
-                if (IsLegalMove(board, move1) && IsLegalMove(board, move2)) {
-                    moves.Add(new() {
-                        From = new(4, 7),
-                        To = new(2, 7),
-                        IsQueensideCastling = true
-                    });
+                if (board.Has(CastlingRights.WhiteQueenside) && board.IsEmpty(3, 0) && board.IsEmpty(2, 0) && board.IsEmpty(1, 0) && board.ColorOfPlayerInCheck != board.Turn) {
+                    board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
+                    List<Move> enemyMoves = GeneratePseudoLegalMoves(board, onlyAttack: true);
+                    board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
+
+                    // Check if opponent can attack square (3, 0) or (2, 0).
+                    if (!enemyMoves.Exists(move => (move.To.File == 4 || move.To.File == 3 || move.To.File == 2) && move.To.Rank == 0)) {
+                        moves.Add(new() {
+                            From = new(4, 0),
+                            To = new(2, 0),
+                            IsQueensideCastling = true
+                        });
+                    }
+                }
+            }
+            else {
+                if (board.Has(CastlingRights.BlackKingside) && board.IsEmpty(5, 7) && board.IsEmpty(6, 7) && board.ColorOfPlayerInCheck != board.Turn) {
+                    board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
+                    List<Move> enemyMoves = GeneratePseudoLegalMoves(board, onlyAttack: true);
+                    board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
+
+                    // Check if opponent can attack square (5, 7) or (6, 7).
+                    if (!enemyMoves.Exists(move => (move.To.File == 4 || move.To.File == 5 || move.To.File == 6) && move.To.Rank == 7)) {
+                        moves.Add(new() {
+                            From = new(4, 7),
+                            To = new(6, 7),
+                            IsKingsideCastling = true
+                        });
+                    }
+                }
+
+                if (board.Has(CastlingRights.BlackQueenside) && board.IsEmpty(3, 7) && board.IsEmpty(2, 7) && board.IsEmpty(1, 7) && board.ColorOfPlayerInCheck != board.Turn) {
+                    board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
+                    List<Move> enemyMoves = GeneratePseudoLegalMoves(board, onlyAttack: true);
+                    board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
+
+                    // Check if opponent can attack square (3, 7) or (2, 7).
+                    if (!enemyMoves.Exists(move => (move.To.File == 4 ||move.To.File == 3 || move.To.File == 2) && move.To.Rank == 7)) {
+                        moves.Add(new() {
+                            From = new(4, 7),
+                            To = new(2, 7),
+                            IsQueensideCastling = true
+                        });
+                    }
                 }
             }
         }

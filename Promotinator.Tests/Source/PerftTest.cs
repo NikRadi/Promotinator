@@ -19,64 +19,64 @@ public class PerftTest {
     }
 
     [Theory]
-    [InlineData([1, 20, FENInitialPosition])]
-    [InlineData([2, 400, FENInitialPosition])]
-    [InlineData([3, 8_902, FENInitialPosition])]
-    [InlineData([4, 197_281, FENInitialPosition])]
-    [InlineData([5, 4_865_609, FENInitialPosition])]
-    public void InitialPosition(int depth, int expected, string fen) {
-        TestPosition(depth, expected, fen);
+    [InlineData([1, 20])]
+    [InlineData([2, 400])]
+    [InlineData([3, 8_902])]
+    [InlineData([4, 197_281])]
+    [InlineData([5, 4_865_609])]
+    public void InitialPosition(int depth, int expected) {
+        TestPosition(depth, expected, FENInitialPosition);
     }
 
     [Theory]
-    [InlineData(1, 48, FENPosition2)]
-    [InlineData(2, 2_039, FENPosition2)]
-    [InlineData(3, 97_862, FENPosition2)]
-    [InlineData(4, 4_085_603, FENPosition2)]
-    public void Position2(int depth, int expected, string fen) {
-        TestPosition(depth, expected, fen);
+    [InlineData(1, 48)]
+    [InlineData(2, 2_039)]
+    [InlineData(3, 97_862)]
+    [InlineData(4, 4_085_603)]
+    public void Position2(int depth, int expected) {
+        TestPosition(depth, expected, FENPosition2);
     }
 
     [Theory]
-    [InlineData(1, 14, FENPosition3)]
-    [InlineData(2, 191, FENPosition3)]
-    [InlineData(3, 2_812, FENPosition3)]
-    [InlineData(4, 43_238, FENPosition3)]
-    [InlineData(5, 674_624, FENPosition3)]
-    public void Position3(int depth, int expected, string fen) {
-        TestPosition(depth, expected, fen);
+    [InlineData(1, 14)]
+    [InlineData(2, 191)]
+    [InlineData(3, 2_812)]
+    [InlineData(4, 43_238)]
+    [InlineData(5, 674_624)]
+    public void Position3(int depth, int expected) {
+        TestPosition(depth, expected, FENPosition3);
     }
 
     [Theory]
-    [InlineData(1, 6, FENPosition4)]
-    [InlineData(2, 264, FENPosition4)]
-    [InlineData(3, 9_467, FENPosition4)]
-    [InlineData(4, 422_333, FENPosition4)]
-    public void Position4(int depth, int expected, string fen) {
-        TestPosition(depth, expected, fen);
+    [InlineData(1, 6)]
+    [InlineData(2, 264)]
+    [InlineData(3, 9_467)]
+    [InlineData(4, 422_333)]
+    public void Position4(int depth, int expected) {
+        TestPosition(depth, expected, FENPosition4);
     }
 
     [Theory]
-    [InlineData(1, 44, FENPosition5)]
-    [InlineData(2, 1_486, FENPosition5)]
-    [InlineData(3, 62_379, FENPosition5)]
-    [InlineData(4, 2_103_487, FENPosition5)]
-    public void Position5(int depth, int expected, string fen) {
-        TestPosition(depth, expected, fen);
+    [InlineData(1, 44)]
+    [InlineData(2, 1_486)]
+    [InlineData(3, 62_379)]
+    [InlineData(4, 2_103_487)]
+    public void Position5(int depth, int expected) {
+        TestPosition(depth, expected, FENPosition5);
     }
 
     [Theory]
-    [InlineData(1, 46, FENPosition6)]
-    [InlineData(2, 2_079, FENPosition6)]
-    [InlineData(3, 89_890, FENPosition6)]
-    [InlineData(4, 3_894_594, FENPosition6)]
-    public void Position6(int depth, int expected, string fen) {
-        TestPosition(depth, expected, fen);
+    [InlineData(1, 46)]
+    [InlineData(2, 2_079)]
+    [InlineData(3, 89_890)]
+    [InlineData(4, 3_894_594)]
+    public void Position6(int depth, int expected) {
+        TestPosition(depth, expected, FENPosition6);
     }
 
     [Fact]
     public void Debug() {
-        TestPosition(1, 0, "r3k2r/p1ppqpb1/1n2pnp1/1b1PN3/1p2P3/5Q1p/PPPBBPPP/RN2K2R w KQkq - 0 1");
+        TestPosition(3, 2, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/1R2K2R b Kkq - 0 1");
     }
 
     private void TestPosition(int depth, int expected, string fen) {

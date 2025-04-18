@@ -6,6 +6,7 @@ public class Board {
     public Color Turn;
     public CastlingRights CastlingRights;
     public Coord? EnPassantSquare;
+    public Color? ColorOfPlayerInCheck;
 
     // (file, rank), (0, 0) = a1, (7, 7) = h8.
     public Piece?[,] Pieces = new Piece?[8, 8];
@@ -31,18 +32,15 @@ public class Board {
 
         EnPassantSquare = newEnPassantSquare;
 
-        // Update queen side castling rights
+        // Update castling rights for when king or rook moved.
         if (Turn == Color.White) {
             if (piece.Is(PieceType.King)) {
                 CastlingRights &= ~CastlingRights.WhiteBoth;
             }
 
             if (piece.Is(PieceType.Rook) && move.From.File == 0) {
-                CastlingRights &= ~CastlingRights.WhiteQueenside;
-            }
-
-            if (piece.Is(PieceType.Rook) && move.From.File == 7) {
-                CastlingRights &= ~CastlingRights.WhiteKingside;
+                if (move.From.File == 0) CastlingRights &= ~CastlingRights.WhiteQueenside;
+                if (move.From.File == 7) CastlingRights &= ~CastlingRights.WhiteKingside;
             }
         }
         else {
@@ -51,10 +49,28 @@ public class Board {
             }
 
             if (piece.Is(PieceType.Rook) && move.From.File == 0) {
+                if (move.From.File == 0) CastlingRights &= ~CastlingRights.BlackQueenside;
+                if (move.From.File == 7) CastlingRights &= ~CastlingRights.BlackKingside;
+            }
+        }
+
+        // Update castling rights for when rook killed.
+        if (move.CapturedPiece.HasValue && move.CapturedPiece.Value.Is(PieceType.Rook)) {
+
+            // If we have relevant castling right then check if we need to remove it (if rook is killed).
+            if ((CastlingRights & CastlingRights.WhiteQueenside) > 0 && move.To.File == 0 && move.To.Rank == 0) {
+                CastlingRights &= ~CastlingRights.WhiteQueenside;
+            }
+
+            if ((CastlingRights & CastlingRights.WhiteKingside) > 0 && move.To.File == 7 && move.To.Rank == 0) {
+                CastlingRights &= ~CastlingRights.WhiteKingside;
+            }
+
+            if ((CastlingRights & CastlingRights.BlackQueenside) > 0 && move.To.File == 0 && move.To.Rank == 7) {
                 CastlingRights &= ~CastlingRights.BlackQueenside;
             }
 
-            if (piece.Is(PieceType.Rook) && move.From.File == 7) {
+            if ((CastlingRights & CastlingRights.BlackKingside) > 0 && move.To.File == 7 && move.To.Rank == 7) {
                 CastlingRights &= ~CastlingRights.BlackKingside;
             }
         }
