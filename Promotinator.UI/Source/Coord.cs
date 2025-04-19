@@ -7,10 +7,6 @@ public struct Coord : IEquatable<Coord> {
     public readonly int Rank;
 
     public Coord(int file , int rank) {
-        if (file < 0 || file >= 8 || rank < 0 || rank >= 8) {
-            throw new ArgumentException($"Invalid file/rank: file:{file} rank:{rank}");
-        }
-
         File = file;
         Rank = rank;
     }

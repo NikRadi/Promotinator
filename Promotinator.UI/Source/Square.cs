@@ -8,6 +8,8 @@ public class Square {
     public bool IsLightSquare;
     public bool WasLastMove;
 
+    public Vector2 Position { set { _rectUI.Position = value; } }
+
     private readonly RectangleUI _rectUI;
 
     private static Color DarkSquareColor { get; } = new(120, 80, 30);

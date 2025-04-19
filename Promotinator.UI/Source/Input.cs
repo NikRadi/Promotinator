@@ -27,7 +27,7 @@ public static class Input {
         return IsKeyDown(key) && !_lastKeyboardState.IsKeyDown(key);
     }
 
-    public static bool IsLeftMouseButtonClick() {
+    public static bool IsLeftMouseButtonDown() {
         return _mouseState.LeftButton == ButtonState.Pressed && _lastMouseState.LeftButton == ButtonState.Released;
     }
 
