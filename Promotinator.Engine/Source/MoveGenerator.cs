@@ -332,9 +332,7 @@ public static class MoveGenerator {
 
     private static bool IsLegalMove(Board board, Move move) {
         bool isLegalMove = true;
-        Coord? lastEnPassantSquare = board.EnPassantSquare;
-        CastlingRights lastCastlingRights = board.CastlingRights;
-        board.MakeMove(move);
+        BoardState state = board.MakeMove(move);
 
         List<Move> moves = GeneratePseudoLegalMoves(board);
         foreach (Move m in moves) {
@@ -344,7 +342,7 @@ public static class MoveGenerator {
             }
         }
 
-        board.UndoMove(move, lastEnPassantSquare, lastCastlingRights);
+        board.UndoMove(move, state);
         return isLegalMove;
     }
 

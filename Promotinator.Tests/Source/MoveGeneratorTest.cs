@@ -138,10 +138,7 @@ public class PerftTest {
         List<Move> moves = MoveGenerator.GenerateMoves(board);
         Console.WriteLine($"CountMoves depth:{depth}");
         foreach (Move move in moves) {
-            Coord? lastEnPassantSquare = board.EnPassantSquare;
-            CastlingRights lastCastlingRights = board.CastlingRights;
-
-            board.MakeMove(move);
+            BoardState state = board.MakeMove(move);
 
             int count = CountMoves(board, depth - 1, false);
             numMoves += count;
@@ -150,7 +147,7 @@ public class PerftTest {
                 _output.WriteLine($"{move}: {count}");
             }
 
-            board.UndoMove(move, lastEnPassantSquare, lastCastlingRights);
+            board.UndoMove(move, state);
         }
 
         return numMoves;

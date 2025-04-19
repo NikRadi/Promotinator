@@ -7,4 +7,6 @@ public enum PieceType {
     Bishop,
     Knight,
     Pawn,
+
+    Count
 }

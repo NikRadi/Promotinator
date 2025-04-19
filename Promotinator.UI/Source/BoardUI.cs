@@ -38,18 +38,6 @@ public class BoardUI {
     }
 
     public void Update() {
-        if (Input.IsLeftMouseButtonDown()) {
-            HandleMouseDown();
-        }
-
-        if (Input.IsLeftMouseButtonReleased()) {
-            HandleMouseRelease();
-        }
-
-        if (Input.IsKeyPressedOnce(Keys.Back)) {
-//            UndoLastMove();
-        }
-
         if (_draggedPiece != null) {
             _draggedPiece.Position = Input.MousePosition - (new Vector2(SquareSize) / 2);
         }
@@ -117,7 +105,7 @@ public class BoardUI {
         }
     }
 
-    private void HandleMouseDown() {
+    public void OnMouseDown() {
         if (!IsInBoard(Input.MousePosition)) {
             return;
         }
@@ -133,7 +121,7 @@ public class BoardUI {
         _controller.OnMouseDown(coord);
     }
 
-    private void HandleMouseRelease() {
+    public void OnMouseReleased() {
         if (_draggedPiece == null) {
             return;
         }

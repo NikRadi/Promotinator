@@ -20,7 +20,9 @@ public class Board {
         Init(state);
     }
 
-    public void MakeMove(Move move) {
+    public BoardState MakeMove(Move move) {
+        BoardState state = new() { EnPassantSquare = EnPassantSquare, CastlingRights = CastlingRights };
+
         Piece piece = Pieces[move.From.File, move.From.Rank].Value;
 
         // Check for en passant square
@@ -117,9 +119,10 @@ public class Board {
         }
 
         Turn = Turn == Color.White ? Color.Black : Color.White;
+        return state;
     }
 
-    public void UndoMove(Move move, Coord? lastEnPassantSquare, CastlingRights lastCastlingRights) {
+    public void UndoMove(Move move, BoardState state) {
         Turn = Turn == Color.White ? Color.Black : Color.White;
 
         // Place moved piece back
@@ -152,8 +155,8 @@ public class Board {
             }
         }
 
-        EnPassantSquare = lastEnPassantSquare;
-        CastlingRights = lastCastlingRights;
+        EnPassantSquare = state.EnPassantSquare;
+        CastlingRights = state.CastlingRights;
     }
 
     internal bool IsEmpty(int file, int rank) {

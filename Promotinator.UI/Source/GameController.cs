@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace Promotinator.UI.Players;
 
 public struct MoveInfo {
-    public Coord From;
-    public Coord To;
+    public Engine.Move Move;
+    public Engine.BoardState State;
+    public List<Engine.ScoredMove> Scores;
 }
 
 public class GameController {
@@ -16,7 +18,8 @@ public class GameController {
     private BoardUI _boardUI;
     private bool _isBlackPlayerAI;
     private bool _isWhitePlayerAI;
-    private bool _isAIThinking;
+    private bool _isAIPaused;
+    private Task _aiMoveTask = Task.CompletedTask;
 
     private List<Coord> _highlightedSquares = [];
     private Stack<MoveInfo> _history = new();
@@ -36,25 +39,19 @@ public class GameController {
         UpdateBoardOrientation();
     }
 
-    public async Task Update() {
+    public void Update() {
+        HandleUserInput();
         _boardUI.Update();
 
-        if (!_isAIThinking && ((_board.Turn == Engine.Color.White && _isWhitePlayerAI) ||_board.Turn == Engine.Color.Black && _isBlackPlayerAI)) {
-            _isAIThinking = true;
-
-            try {
-                Task<Engine.Move> aiMoveTask = Engine.Search.FindBestMoveAsync(_board);
-                Task minimumThinkTimeTask = Task.Delay(500);
-
-                await Task.WhenAll(aiMoveTask, minimumThinkTimeTask);
-
-                Engine.Move move = await aiMoveTask;
-                MakeMove(move);
-            } catch (Exception e) {
-                Console.WriteLine($"An error ocurred during AI move: {e.Message}");
+        if (_aiMoveTask.IsCompleted && !_isAIPaused) {
+            if (_aiMoveTask.IsFaulted) {
+                Console.WriteLine($"An error ocurred during AI move: {_aiMoveTask.Exception}");
             }
-            finally {
-                _isAIThinking = false;
+
+            bool canAIMoveWhite = _isWhitePlayerAI && _board.Turn == Engine.Color.White;
+            bool canAIMoveBlack = _isBlackPlayerAI && _board.Turn == Engine.Color.Black;
+            if (canAIMoveWhite || canAIMoveBlack) {
+                _aiMoveTask = TryAIMoveAsync();
             }
         }
     }
@@ -87,21 +84,24 @@ public class GameController {
             return;
         }
 
-        MakeMove(moves[moveIndex]);
+        MakeMove(moves[moveIndex], []);
     }
 
-    private void MakeMove(Engine.Move move) {
-        _board.MakeMove(move);
+    private void MakeMove(Engine.Move move, List<Engine.ScoredMove> scores) {
+        _isAIPaused = false;
+
+        Engine.BoardState state = _board.MakeMove(move);
         _boardUI.PlacePieces(_board);
 
         if (_history.Count > 0) {
-            MoveInfo lastMove = _history.Peek();
-            _boardUI.SetMoveHighlight(lastMove.From, lastMove.To, isHighlighted: false);
+            MoveInfo info = _history.Peek();
+            Engine.Move m = info.Move;
+            _boardUI.SetMoveHighlight(new(m.From.File, m.From.Rank), new(m.To.File, m.To.Rank), isHighlighted: false);
         }
 
         Coord from = new(move.From.File, move.From.Rank);
         Coord to = new(move.To.File, move.To.Rank);
-        _history.Push(new() { From = from, To = to });
+        _history.Push(new() { Move = move, State = state, Scores = scores });
         _boardUI.SetMoveHighlight(from, to, isHighlighted: true);
 
         UpdateBoardLockedColor();
@@ -116,5 +116,54 @@ public class GameController {
     private void UpdateBoardOrientation() {
         bool isWhiteBottom = (_isWhitePlayerAI && _isBlackPlayerAI) || (!_isWhitePlayerAI && _board.Turn == Engine.Color.White);
         _boardUI.SetPerspective(isWhiteBottom);
+    }
+
+    private void HandleUserInput() {
+        if (Input.IsLeftMouseButtonDown()) {
+            _boardUI.OnMouseDown();
+        }
+
+        if (Input.IsLeftMouseButtonReleased()) {
+            _boardUI.OnMouseReleased();
+        }
+
+        if (Input.IsKeyPressedOnce(Keys.Back) && _aiMoveTask.IsCompleted) {
+            UndoLastMove();
+        }
+
+        if (Input.IsKeyPressedOnce(Keys.Space)) {
+            _isAIPaused = false;
+        }
+    }
+
+    private async Task TryAIMoveAsync() {
+        Task<List<Engine.ScoredMove>> aiMoveTask = Engine.Search.FindBestMoveAsync(_board);
+        Task minimumThinkTimeTask = Task.Delay(500);
+
+        await Task.WhenAll(aiMoveTask, minimumThinkTimeTask);
+
+        List<Engine.ScoredMove> moves = await aiMoveTask;
+        MakeMove(moves[0].Move, moves);
+    }
+
+    private void UndoLastMove() {
+        if (_history.Count == 0) {
+            return;
+        }
+
+        _isAIPaused = true;
+
+        MoveInfo info = _history.Pop();
+        Engine.Move m = info.Move;
+        _boardUI.SetMoveHighlight(new(m.From.File, m.From.Rank), new(m.To.File, m.To.Rank), isHighlighted: false);
+
+        _board.UndoMove(info.Move, info.State);
+        _boardUI.PlacePieces(_board);
+
+        if (_history.Count > 0) {
+            info = _history.Peek();
+            m = info.Move;
+            _boardUI.SetMoveHighlight(new(m.From.File, m.From.Rank), new(m.To.File, m.To.Rank), isHighlighted: true);
+        }
     }
 }
