@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Promotinator.Engine", "Prom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Promotinator.Tests", "Promotinator.Tests\Promotinator.Tests.csproj", "{1921501C-95D9-4137-B6EE-928DC63A985A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Promotinator.Benchmarks", "Promotinator.Benchmarks\Promotinator.Benchmarks.csproj", "{0F4E0488-4613-4D0F-9B37-215200BE17EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{1921501C-95D9-4137-B6EE-928DC63A985A}.Release|x64.Build.0 = Release|Any CPU
 		{1921501C-95D9-4137-B6EE-928DC63A985A}.Release|x86.ActiveCfg = Release|Any CPU
 		{1921501C-95D9-4137-B6EE-928DC63A985A}.Release|x86.Build.0 = Release|Any CPU
+		{0F4E0488-4613-4D0F-9B37-215200BE17EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F4E0488-4613-4D0F-9B37-215200BE17EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F4E0488-4613-4D0F-9B37-215200BE17EE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0F4E0488-4613-4D0F-9B37-215200BE17EE}.Debug|x64.Build.0 = Debug|Any CPU
+		{0F4E0488-4613-4D0F-9B37-215200BE17EE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0F4E0488-4613-4D0F-9B37-215200BE17EE}.Debug|x86.Build.0 = Debug|Any CPU
+		{0F4E0488-4613-4D0F-9B37-215200BE17EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F4E0488-4613-4D0F-9B37-215200BE17EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F4E0488-4613-4D0F-9B37-215200BE17EE}.Release|x64.ActiveCfg = Release|Any CPU
+		{0F4E0488-4613-4D0F-9B37-215200BE17EE}.Release|x64.Build.0 = Release|Any CPU
+		{0F4E0488-4613-4D0F-9B37-215200BE17EE}.Release|x86.ActiveCfg = Release|Any CPU
+		{0F4E0488-4613-4D0F-9B37-215200BE17EE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
