@@ -43,6 +43,9 @@ public class BoardUI {
     }
 
     public void Draw(SpriteBatch spriteBatch) {
+        // The order of these draw-calls matters.
+        // Pieces must be on top of squares and text must be on top of pieces.
+
         foreach (RectangleUI border in Borders) {
             border.Draw(spriteBatch);
         }
@@ -51,7 +54,6 @@ public class BoardUI {
             square.Draw(spriteBatch);
         }
 
-        // The pieces must be drawn last to appear on top of everything else.
         foreach (Piece piece in Pieces) {
             piece?.Draw(spriteBatch);
         }
@@ -88,11 +90,6 @@ public class BoardUI {
     public void SetMoveHighlight(Coord from, Coord to, bool isHighlighted) {
         Squares[from.File, from.Rank].WasLastMove = isHighlighted;
         Squares[to.File, to.Rank].WasLastMove = isHighlighted;
-    }
-
-    public void ResetDraggedPiece() {
-        _draggedPiece.Position = ToPosition(_draggedFrom.File, _draggedFrom.Rank);
-        _draggedPiece = null;
     }
 
     public void SetPerspective(bool isWhiteBottom) {

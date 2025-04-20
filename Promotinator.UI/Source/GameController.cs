@@ -161,9 +161,9 @@ public class GameController {
         _board.UndoMove(info.Move, info.State);
         _boardUI.PlacePieces(_board);
 
-        foreach (Engine.ScoredMove move in info.Scores) {
-            _boardUI.Squares[move.Move.To.File, move.Move.To.Rank].Text = $"{move.Score}";
-        }
+//        foreach (Engine.ScoredMove move in info.Scores) {
+//            _boardUI.Squares[move.Move.To.File, move.Move.To.Rank].Text = $"{move.Score}";
+//        }
 
         if (_history.Count > 0) {
             info = _history.Peek();

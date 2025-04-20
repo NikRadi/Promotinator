@@ -6,8 +6,8 @@ using Promotinator.UI.Players;
 namespace Promotinator.UI;
 
 public class ChessUI : Game {
-    private const int SCREEN_HEIGHT = 720;
-    private const int SCREEN_WIDTH = 1280;
+    private const int ScreenHeight = 720;
+    private const int ScreenWidth = 1280;
 
     private Color BackgroundColor { get; } = new(75, 75, 75);
     private GraphicsDeviceManager _graphics;
@@ -19,8 +19,8 @@ public class ChessUI : Game {
         IsMouseVisible = true;
 
         _graphics = new(this) {
-            PreferredBackBufferHeight = SCREEN_HEIGHT,
-            PreferredBackBufferWidth = SCREEN_WIDTH,
+            PreferredBackBufferHeight = ScreenHeight,
+            PreferredBackBufferWidth = ScreenWidth,
         };
     }
 

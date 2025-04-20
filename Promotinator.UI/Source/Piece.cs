@@ -24,11 +24,11 @@ public class Piece {
     public Vector2 Position;
     public int Size;
 
-    private const int SPRITES_PER_ROW = 6;
-    private const int SPRITES_PER_COLUMN = 2;
+    private const int SpritesPerRow = 6;
+    private const int SpritesPerColumn = 2;
 
     // Array of [PieceColor, PieceType].
-    private static Rectangle[,] SourceRectangles { get; set; } = new Rectangle[SPRITES_PER_COLUMN, SPRITES_PER_ROW];
+    private static Rectangle[,] SourceRectangles { get; set; } = new Rectangle[SpritesPerColumn, SpritesPerRow];
 
     private static Texture2D SpriteSheet;
 
@@ -41,8 +41,8 @@ public class Piece {
 
     public static void LoadContent(ContentManager content) {
         SpriteSheet = content.Load<Texture2D>("pieces");
-        int width = SpriteSheet.Width / SPRITES_PER_ROW;
-        int height = SpriteSheet.Height / SPRITES_PER_COLUMN;
+        int width = SpriteSheet.Width / SpritesPerRow;
+        int height = SpriteSheet.Height / SpritesPerColumn;
 
         SourceRectangles[(int) PieceColor.White, (int) PieceType.King]      = new(width * 0, 0, width, height);
         SourceRectangles[(int) PieceColor.White, (int) PieceType.Queen]     = new(width * 1, 0, width, height);
