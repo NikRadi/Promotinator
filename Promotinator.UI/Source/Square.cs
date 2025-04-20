@@ -7,8 +7,14 @@ public class Square {
     public bool IsHighlighted;
     public bool IsLightSquare;
     public bool WasLastMove;
+    public string Text;
 
-    public Vector2 Position { set { _rectUI.Position = value; } }
+    public Vector2 Position {
+        get { return _rectUI.Position; }
+        set { _rectUI.Position = value; }
+    }
+
+    public Vector2 Size => _rectUI.Size;
 
     private readonly RectangleUI _rectUI;
 

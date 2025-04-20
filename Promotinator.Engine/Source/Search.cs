@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Promotinator.Engine;
 
 public struct ScoredMove {
@@ -13,6 +11,8 @@ public static class Search {
     }
 
     public static List<ScoredMove> FindBestMove(Board board) {
+        SearchDebug.ClearLog();
+
         List<ScoredMove> result = [];
         List<Move> moves = MoveGenerator.GenerateMoves(board);
 
@@ -22,16 +22,19 @@ public static class Search {
             int score = Minimax(board, 3);
             result.Add(new() { Move = move, Score = score });
 
+            SearchDebug.Log($"Move:{move} Score:{score}");
+
             board.UndoMove(move, state);
         }
 
-        result.Sort((m1, m2) => m1.Score.CompareTo(m2.Score));
+        result.Sort((m1, m2) => m2.Score.CompareTo(m1.Score));
+        SearchDebug.Log($"Best move: {result[0].Move}");
         return result;
     }
 
     private static int Minimax(Board board, int depth) {
         if (depth == 0) {
-            return 0;
+            return Eval.Score(board);
         }
 
         if (board.Turn == Color.White) {

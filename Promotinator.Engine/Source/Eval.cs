@@ -21,7 +21,8 @@ public static class Eval {
                 }
 
                 Piece piece = board.Pieces[file, rank].Value;
-                score += ValueOf[(int) piece.Type];
+                int sign = piece.Color == Color.White ? 1 : -1;
+                score += sign * ValueOf[(int) piece.Type];
             }
         }
 

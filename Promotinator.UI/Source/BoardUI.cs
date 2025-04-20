@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Promotinator.UI.Players;
 
 namespace Promotinator.UI;
@@ -13,7 +12,7 @@ public class BoardUI {
 
     // (file, rank), (0, 0) = a1, (7, 7) = h8.
     private Piece[,] Pieces { get; } = new Piece[8, 8];
-    private Square[,] Squares { get; } = new Square[8, 8];
+    public Square[,] Squares { get; } = new Square[8, 8];
 
     private RectangleUI[] Borders { get; } = new RectangleUI[4];
     private Color BorderColor { get; } = new(100, 100, 100);
@@ -55,6 +54,14 @@ public class BoardUI {
         // The pieces must be drawn last to appear on top of everything else.
         foreach (Piece piece in Pieces) {
             piece?.Draw(spriteBatch);
+        }
+
+        foreach (Square square in Squares) {
+            if (!string.IsNullOrWhiteSpace(square.Text)) {
+                Vector2 textSize = DebugInfo.Font.MeasureString(square.Text);
+                Vector2 position = square.Position + (square.Size - textSize) / 2;
+                spriteBatch.DrawString(DebugInfo.Font, square.Text, position, Color.Fuchsia);
+            }
         }
     }
 
