@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Promotinator.Graphics.UI;
 
-public class Square {
+public class SquareUI {
     public bool IsHighlighted;
     public bool IsLightSquare;
     public bool WasLastMove;
@@ -25,7 +25,7 @@ public class Square {
     private static Color LastMoveDarkSquareColor { get; } = new(200, 200, 50);
     private static Color LastMoveLightSquareColor { get; } = new(255, 255, 100);
 
-    public Square(Vector2 position, int size, bool isLightSquare) {
+    public SquareUI(Vector2 position, int size, bool isLightSquare) {
         IsLightSquare = isLightSquare;
         _rectUI = new(position, new(size, size));
     }

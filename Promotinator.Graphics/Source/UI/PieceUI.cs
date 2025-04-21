@@ -18,7 +18,7 @@ public enum PieceType {
     Pawn,
 }
 
-public class Piece {
+public class PieceUI {
     public PieceColor Color;
     public PieceType Type;
     public Vector2 Position;
@@ -32,7 +32,7 @@ public class Piece {
 
     private static Texture2D SpriteSheet;
 
-    public Piece(PieceColor color, PieceType type, Vector2 position, int size) {
+    public PieceUI(PieceColor color, PieceType type, Vector2 position, int size) {
         Color = color;
         Type = type;
         Position = position;

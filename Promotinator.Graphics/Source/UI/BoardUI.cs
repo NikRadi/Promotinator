@@ -12,8 +12,8 @@ public class BoardUI {
     public bool AreWhitePiecesLocked;
 
     // (file, rank), (0, 0) = a1, (7, 7) = h8.
-    private Piece[,] Pieces { get; } = new Piece[8, 8];
-    public Square[,] Squares { get; } = new Square[8, 8];
+    private PieceUI[,] Pieces { get; } = new PieceUI[8, 8];
+    public SquareUI[,] Squares { get; } = new SquareUI[8, 8];
 
     private RectangleUI[] Borders { get; } = new RectangleUI[4];
     private Color BorderColor { get; } = new(100, 100, 100);
@@ -21,7 +21,7 @@ public class BoardUI {
     private int SquareSize { get; }
     private int BorderSize { get; }
     private Rectangle Bounds { get; }
-    private Piece _draggedPiece;
+    private PieceUI _draggedPiece;
     private Coord _draggedFrom;
     private GameController _controller;
     private bool _isWhiteBottom = true;
@@ -47,19 +47,19 @@ public class BoardUI {
         // The order of these draw-calls matters.
         // Pieces must be on top of squares and text must be on top of pieces.
 
-        foreach (RectangleUI border in Borders) {
+        foreach (var border in Borders) {
             border.Draw(spriteBatch);
         }
 
-        foreach (Square square in Squares) {
+        foreach (var square in Squares) {
             square.Draw(spriteBatch);
         }
 
-        foreach (Piece piece in Pieces) {
+        foreach (var piece in Pieces) {
             piece?.Draw(spriteBatch);
         }
 
-        foreach (Square square in Squares) {
+        foreach (SquareUI square in Squares) {
             if (!string.IsNullOrWhiteSpace(square.Text)) {
                 Vector2 textSize = DebugInfo.Font.MeasureString(square.Text);
                 Vector2 position = square.Position + (square.Size - textSize) / 2;
@@ -116,7 +116,7 @@ public class BoardUI {
         }
 
         Coord coord = ToCoord(Input.MousePosition);
-        Piece piece = Pieces[coord.File, coord.Rank];
+        var piece = Pieces[coord.File, coord.Rank];
         if (piece != null && ((piece.Color == PieceColor.White && AreWhitePiecesLocked) || (piece.Color == PieceColor.Black && AreBlackPiecesLocked))) {
             return;
         }

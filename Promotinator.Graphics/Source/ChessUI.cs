@@ -47,7 +47,7 @@ public class ChessUI : Game {
 
     protected override void LoadContent() {
         _spriteBatch = new(GraphicsDevice);
-        Piece.LoadContent(Content);
+        PieceUI.LoadContent(Content);
         DebugInfo.LoadContent(Content);
 
         base.LoadContent();
