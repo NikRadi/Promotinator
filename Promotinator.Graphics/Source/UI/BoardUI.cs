@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Promotinator.Graphics.Players;
+using Promotinator.Graphics.Util;
 
-namespace Promotinator.Graphics;
+namespace Promotinator.Graphics.UI;
 
 public class BoardUI {
     public bool AreBlackPiecesLocked;

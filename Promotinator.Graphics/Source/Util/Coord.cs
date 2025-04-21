@@ -1,6 +1,6 @@
 using System;
 
-namespace Promotinator.Graphics;
+namespace Promotinator.Graphics.Util;
 
 public struct Coord : IEquatable<Coord> {
     public readonly int File;

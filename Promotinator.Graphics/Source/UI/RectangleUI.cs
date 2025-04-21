@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Promotinator.Graphics;
+namespace Promotinator.Graphics.UI;
 
 public class RectangleUI {
     public Vector2 Position;
