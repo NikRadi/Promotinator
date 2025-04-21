@@ -4,10 +4,6 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Promotinator.Graphics.UI;
 
 public class SquareUI {
-    public bool IsHighlighted;
-    public bool IsLightSquare;
-    public bool WasLastMove;
-
     public Vector2 Position {
         get { return _rectUI.Position; }
         set { _rectUI.Position = value; }
@@ -16,30 +12,46 @@ public class SquareUI {
     public Vector2 Size => _rectUI.Size;
 
     private readonly RectangleUI _rectUI;
+    private bool _isLastMove;
+    private bool _isLight;
+    private bool _isPotentialMove;
 
-    private static Color DarkSquareColor { get; } = new(120, 80, 30);
-    private static Color LightSquareColor { get; } = new(230, 200, 85);
-    private static Color HighlightedDarkSquareColor { get; } = new(30, 70, 120);
-    private static Color HighlightedLightSquareColor { get; } = new(85, 190, 230);
-    private static Color LastMoveDarkSquareColor { get; } = new(200, 200, 50);
-    private static Color LastMoveLightSquareColor { get; } = new(255, 255, 100);
+    private static Color DarkColor { get; } = new(120, 80, 30);
+    private static Color LightColor { get; } = new(230, 200, 85);
+    private static Color LastMoveDarkColor { get; } = new(200, 200, 50);
+    private static Color LastMoveLightColor { get; } = new(255, 255, 100);
+    private static Color PotentialMoveDarkColor { get; } = new(30, 70, 120);
+    private static Color PotentialColorLightColor { get; } = new(85, 190, 230);
 
     public SquareUI(Vector2 position, int size, bool isLightSquare) {
-        IsLightSquare = isLightSquare;
+        _isLight = isLightSquare;
         _rectUI = new(position, new(size, size));
+        UpdateColor();
     }
 
     public void Draw(SpriteBatch spriteBatch) {
-        if (IsHighlighted) {
-            _rectUI.Color = IsLightSquare ? HighlightedLightSquareColor : HighlightedDarkSquareColor;
+        _rectUI.Draw(spriteBatch);
+    }
+
+    public void SetLastMoveHighlight(bool isLastMove) {
+        _isLastMove = isLastMove;
+        UpdateColor();
+    }
+
+    public void SetPotentialMoveHighlight(bool isPotentialMove) {
+        _isPotentialMove = isPotentialMove;
+        UpdateColor();
+    }
+
+    private void UpdateColor() {
+        if (_isPotentialMove) {
+            _rectUI.Color = _isLight ? PotentialColorLightColor : PotentialMoveDarkColor;
         }
-        else if (WasLastMove) {
-            _rectUI.Color = IsLightSquare ? LastMoveLightSquareColor : LastMoveDarkSquareColor;
+        else if (_isLastMove) {
+            _rectUI.Color = _isLight ? LastMoveLightColor : LastMoveDarkColor;
         }
         else {
-            _rectUI.Color = IsLightSquare ? LightSquareColor : DarkSquareColor;
+            _rectUI.Color = _isLight ? LightColor : DarkColor;
         }
-
-        _rectUI.Draw(spriteBatch);
     }
 }

@@ -13,7 +13,7 @@ public class BoardUI {
 
     // (file, rank), (0, 0) = a1, (7, 7) = h8.
     private PieceUI[,] Pieces { get; } = new PieceUI[8, 8];
-    public SquareUI[,] Squares { get; } = new SquareUI[8, 8];
+    private SquareUI[,] Squares { get; } = new SquareUI[8, 8];
 
     private RectangleUI[] Borders { get; } = new RectangleUI[4];
     private Color BorderColor { get; } = new(100, 100, 100);
@@ -74,15 +74,15 @@ public class BoardUI {
         }
     }
 
-    public void SetHighlightedSquares(List<Coord> squares, bool isHighlighted) {
+    public void SetPotentialMoveHighlights(List<Coord> squares, bool isHighlighted) {
         foreach (Coord square in squares) {
-            Squares[square.File, square.Rank].IsHighlighted = isHighlighted;
+            Squares[square.File, square.Rank].SetPotentialMoveHighlight(isHighlighted);
         }
     }
 
-    public void SetMoveHighlight(Coord from, Coord to, bool isHighlighted) {
-        Squares[from.File, from.Rank].WasLastMove = isHighlighted;
-        Squares[to.File, to.Rank].WasLastMove = isHighlighted;
+    public void SetLastMoveHighlight(Coord from, Coord to, bool isHighlighted) {
+        Squares[from.File, from.Rank].SetLastMoveHighlight(isHighlighted);
+        Squares[to.File, to.Rank].SetLastMoveHighlight(isHighlighted);
     }
 
     public void SetPerspective(bool isWhiteBottom) {

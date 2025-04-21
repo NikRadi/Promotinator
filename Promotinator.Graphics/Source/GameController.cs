@@ -72,11 +72,11 @@ public class GameController {
             }
         }
 
-        _boardUI.SetHighlightedSquares(_highlightedSquares, isHighlighted: true);
+        _boardUI.SetPotentialMoveHighlights(_highlightedSquares, isHighlighted: true);
     }
 
     public void OnMouseRelease(Coord from, Coord to) {
-        _boardUI.SetHighlightedSquares(_highlightedSquares, isHighlighted: false);
+        _boardUI.SetPotentialMoveHighlights(_highlightedSquares, isHighlighted: false);
         _highlightedSquares.Clear();
 
         List<Engine.Move> moves = Engine.MoveGenerator.GenerateMoves(_board);
@@ -98,13 +98,13 @@ public class GameController {
         if (_history.Count > 0) {
             MoveInfo info = _history.Peek();
             Engine.Move m = info.Move;
-            _boardUI.SetMoveHighlight(new(m.From.File, m.From.Rank), new(m.To.File, m.To.Rank), isHighlighted: false);
+            _boardUI.SetLastMoveHighlight(new(m.From.File, m.From.Rank), new(m.To.File, m.To.Rank), isHighlighted: false);
         }
 
         Coord from = new(move.From.File, move.From.Rank);
         Coord to = new(move.To.File, move.To.Rank);
         _history.Push(new() { Move = move, State = state, Scores = scores });
-        _boardUI.SetMoveHighlight(from, to, isHighlighted: true);
+        _boardUI.SetLastMoveHighlight(from, to, isHighlighted: true);
 
         UpdateBoardLockedColor();
         UpdateBoardOrientation();
@@ -157,7 +157,7 @@ public class GameController {
 
         MoveInfo info = _history.Pop();
         Engine.Move m = info.Move;
-        _boardUI.SetMoveHighlight(new(m.From.File, m.From.Rank), new(m.To.File, m.To.Rank), isHighlighted: false);
+        _boardUI.SetLastMoveHighlight(new(m.From.File, m.From.Rank), new(m.To.File, m.To.Rank), isHighlighted: false);
 
         _board.UndoMove(info.Move, info.State);
         _boardUI.PlacePieces(_board);
@@ -165,7 +165,7 @@ public class GameController {
         if (_history.Count > 0) {
             info = _history.Peek();
             m = info.Move;
-            _boardUI.SetMoveHighlight(new(m.From.File, m.From.Rank), new(m.To.File, m.To.Rank), isHighlighted: true);
+            _boardUI.SetLastMoveHighlight(new(m.From.File, m.From.Rank), new(m.To.File, m.To.Rank), isHighlighted: true);
         }
     }
 }
