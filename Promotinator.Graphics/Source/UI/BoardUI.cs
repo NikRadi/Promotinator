@@ -44,20 +44,23 @@ public class BoardUI {
     }
 
     public void Draw(SpriteBatch spriteBatch) {
-        // The order of these draw-calls matters.
-        // Pieces must be on top of squares and text must be on top of pieces.
-
         foreach (var border in Borders) {
             border.Draw(spriteBatch);
         }
 
-        foreach (var square in Squares) {
-            square.Draw(spriteBatch);
+        for (int file = 0; file < 8; ++file) {
+            for (int rank = 0; rank < 8; ++rank) {
+                Squares[file, rank].Draw(spriteBatch);
+
+                var p = Pieces[file, rank];
+                if (p != null && p != _draggedPiece) {
+                    p.Draw(spriteBatch);
+                }
+            }
         }
 
-        foreach (var piece in Pieces) {
-            piece?.Draw(spriteBatch);
-        }
+        // Drawn last to appear on top of everything else.
+        _draggedPiece?.Draw(spriteBatch);
     }
 
     public void PlacePieces(Engine.Board board) {
