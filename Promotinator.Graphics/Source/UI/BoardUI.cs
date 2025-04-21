@@ -58,14 +58,6 @@ public class BoardUI {
         foreach (var piece in Pieces) {
             piece?.Draw(spriteBatch);
         }
-
-        foreach (SquareUI square in Squares) {
-            if (!string.IsNullOrWhiteSpace(square.Text)) {
-                Vector2 textSize = DebugInfo.Font.MeasureString(square.Text);
-                Vector2 position = square.Position + (square.Size - textSize) / 2;
-                spriteBatch.DrawString(DebugInfo.Font, square.Text, position, Color.Fuchsia);
-            }
-        }
     }
 
     public void PlacePieces(Engine.Board board) {

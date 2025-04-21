@@ -7,7 +7,6 @@ public class SquareUI {
     public bool IsHighlighted;
     public bool IsLightSquare;
     public bool WasLastMove;
-    public string Text;
 
     public Vector2 Position {
         get { return _rectUI.Position; }

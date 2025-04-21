@@ -108,7 +108,6 @@ public class GameController {
 
         UpdateBoardLockedColor();
         UpdateBoardOrientation();
-        ClearSquareTexts();
     }
 
     private void UpdateBoardLockedColor() {
@@ -163,22 +162,10 @@ public class GameController {
         _board.UndoMove(info.Move, info.State);
         _boardUI.PlacePieces(_board);
 
-//        foreach (Engine.ScoredMove move in info.Scores) {
-//            _boardUI.Squares[move.Move.To.File, move.Move.To.Rank].Text = $"{move.Score}";
-//        }
-
         if (_history.Count > 0) {
             info = _history.Peek();
             m = info.Move;
             _boardUI.SetMoveHighlight(new(m.From.File, m.From.Rank), new(m.To.File, m.To.Rank), isHighlighted: true);
-        }
-    }
-
-    private void ClearSquareTexts() {
-        for (int file = 0; file < 8; ++file) {
-            for (int rank = 0; rank < 8; ++rank) {
-                _boardUI.Squares[file, rank].Text = null;
-            }
         }
     }
 }
