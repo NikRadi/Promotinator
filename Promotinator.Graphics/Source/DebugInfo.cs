@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Promotinator.UI;
+namespace Promotinator.Graphics;
 
 public static class DebugInfo {
     public static int NumLegalMoves;

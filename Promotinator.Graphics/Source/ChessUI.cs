@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Promotinator.UI.Players;
+using Promotinator.Graphics.Players;
 
-namespace Promotinator.UI;
+namespace Promotinator.Graphics;
 
 public class ChessUI : Game {
     private const int ScreenHeight = 720;

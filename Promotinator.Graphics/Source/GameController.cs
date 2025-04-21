@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Promotinator.UI.Players;
+namespace Promotinator.Graphics.Players;
 
 public struct MoveInfo {
     public Engine.Move Move;

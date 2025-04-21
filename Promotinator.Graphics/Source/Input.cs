@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace Promotinator.UI;
+namespace Promotinator.Graphics;
 
 public static class Input {
     public static Vector2 MousePosition => new(_mouseState.X, _mouseState.Y);

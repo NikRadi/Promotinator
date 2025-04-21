@@ -1,4 +1,4 @@
-﻿namespace Promotinator.UI;
+﻿namespace Promotinator.Graphics;
 
 public class Program {
     public static void Main(string[] args) {

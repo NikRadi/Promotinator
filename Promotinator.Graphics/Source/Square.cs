@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Promotinator.UI;
+namespace Promotinator.Graphics;
 
 public class Square {
     public bool IsHighlighted;

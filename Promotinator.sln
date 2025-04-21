@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Promotinator.UI", "Promotinator.UI\Promotinator.UI.csproj", "{27EAF49C-9680-4C19-B169-F3641EC1B630}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Promotinator.Graphics", "Promotinator.Graphics\Promotinator.Graphics.csproj", "{27EAF49C-9680-4C19-B169-F3641EC1B630}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Promotinator.Engine", "Promotinator.Engine\Promotinator.Engine.csproj", "{7E0C60FA-05C2-40E1-A756-A1379AB210DB}"
 EndProject
