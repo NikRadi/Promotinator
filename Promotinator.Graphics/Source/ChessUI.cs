@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Promotinator.Engine.Utils;
 using Promotinator.Graphics.UI;
 
 namespace Promotinator.Graphics;
@@ -12,7 +13,7 @@ public class ChessUI : Game {
     private Color BackgroundColor { get; } = new(75, 75, 75);
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
-    private GameController _gameController;
+    private Tournament _tournament;
 
     public ChessUI() {
         Content.RootDirectory = "Content";
@@ -28,14 +29,15 @@ public class ChessUI : Game {
         RectangleUI.Initialize(GraphicsDevice);
 
         float centerY = GraphicsDevice.Viewport.Height / 2;
-        _gameController = new GameController(centerY);
+        string[] fens = [FENUtil.StartPosition];
+        _tournament = new(centerY, fens);
 
         base.Initialize();
     }
 
     protected override void Update(GameTime gameTime) {
         Input.Update();
-        _gameController.Update();
+        _tournament.Update();
 
         if (Input.IsKeyDown(Keys.Escape)) {
             Exit();
@@ -56,7 +58,8 @@ public class ChessUI : Game {
         GraphicsDevice.Clear(BackgroundColor);
 
         _spriteBatch.Begin();
-        _gameController.Draw(_spriteBatch);
+        _tournament.Draw(_spriteBatch);
+
         DebugInfo.Draw(_spriteBatch);
         _spriteBatch.End();
 

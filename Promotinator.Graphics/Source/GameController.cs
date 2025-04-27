@@ -13,55 +13,63 @@ public struct MoveInfo {
     public List<Engine.ScoredMove> Scores;
 }
 
+internal enum GameState {
+    None,
+    WhiteToMove,
+    BlackToMove,
+    WhiteWin,
+    BlackWin,
+    Draw,
+}
+
 public class GameController {
     private Engine.Board _board;
     private BoardUI _boardUI;
 
     private IPlayer _whitePlayer;
     private IPlayer _blackPlayer;
+    private GameState _state;
 
-    public GameController(float centerY) {
-        _board = new Engine.Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    public GameController(float centerY = 0) {
+        _board = new();
+        _state = GameState.None;
 
         int size = 600;
         Vector2 position = new(50, centerY - (size / 2));
         _boardUI = new(position, size);
-        _boardUI.PlacePieces(_board);
 
-        // TODO: HumanPlayer vs. HumanPlayer is buggy.
-        // Both HumanPlayer instances subscribe to 'OnDragStarted' and 'OnDragEnded',
-        // resulting in both of them trying to make a move each turn.
-        _whitePlayer = new HumanPlayer(_boardUI, _board);
+        _whitePlayer = new AIPlayer(_board);
+        _whitePlayer.OnMakeMove += HandleWhitePlayerMove;
+
         _blackPlayer = new AIPlayer(_board);
+        _blackPlayer.OnMakeMove += HandleBlackPlayerMove;
+    }
 
+    public void SetState(string fen) {
+        _board.SetState(fen);
+        _boardUI.PlacePieces(_board);
+    }
+
+    public void StartGame() {
         if (_board.Turn == Engine.Color.White) {
             _whitePlayer.StartMakingMove();
+            _state = GameState.WhiteToMove;
+        }
+        else if (_board.Turn == Engine.Color.Black) {
+            _blackPlayer.StartMakingMove();
+            _state = GameState.BlackToMove;
         }
         else {
-            _blackPlayer.StartMakingMove();
+            _state = GameState.None;
         }
+    }
 
-        _whitePlayer.OnMakeMove += HandleWhitePlayerMove;
-        _blackPlayer.OnMakeMove += HandleBlackPlayerMove;
-
-        UpdateBoardLockedColor();
-        UpdateBoardOrientation();
+    public bool IsGameFinished() {
+        return _state == GameState.WhiteWin || _state == GameState.BlackWin || _state == GameState.Draw || _state == GameState.None;
     }
 
     public void Update() {
         _boardUI.Update();
-
-//        if (_aiMoveTask.IsCompleted && !_isAIPaused) {
-//            if (_aiMoveTask.IsFaulted) {
-//                Console.WriteLine($"An error ocurred during AI move: {_aiMoveTask.Exception}");
-//            }
-//
-//            bool canAIMoveWhite = _isWhitePlayerAI && _board.Turn == Engine.Color.White;
-//            bool canAIMoveBlack = _isBlackPlayerAI && _board.Turn == Engine.Color.Black;
-//            if (canAIMoveWhite || canAIMoveBlack) {
-//                _aiMoveTask = TryAIMoveAsync();
-//            }
-//        }
     }
 
     public void Draw(SpriteBatch spriteBatch) {

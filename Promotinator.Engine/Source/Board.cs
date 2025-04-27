@@ -11,11 +11,19 @@ public class Board {
     // (file, rank), (0, 0) = a1, (7, 7) = h8.
     public Piece?[,] Pieces = new Piece?[8, 8];
 
+    public Board() {
+
+    }
+
     public Board(FENBoardState state) {
         Init(state);
     }
 
     public Board(string fen) {
+        SetState(fen);
+    }
+
+    public void SetState(string fen) {
         FENBoardState state = FENUtil.ParseFEN(fen);
         Init(state);
     }
