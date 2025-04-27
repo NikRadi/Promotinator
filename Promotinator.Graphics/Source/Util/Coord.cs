@@ -6,7 +6,9 @@ public struct Coord : IEquatable<Coord> {
     public readonly int File;
     public readonly int Rank;
 
-    public Coord(int file , int rank) {
+    public static Coord Null => new(-1, -1);
+
+    public Coord(int file, int rank) {
         File = file;
         Rank = rank;
     }

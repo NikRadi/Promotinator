@@ -1,36 +1,32 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Promotinator.Graphics.Players;
 using Promotinator.Graphics.Util;
 
 namespace Promotinator.Graphics.UI;
 
 public class BoardUI {
+    public event EventHandler<Coord> OnPieceDragStarted;
+    public event EventHandler<Move> OnPieceDragEnded;
+
     public bool AreBlackPiecesLocked;
     public bool AreWhitePiecesLocked;
 
     // (file, rank), (0, 0) = a1, (7, 7) = h8.
-    private PieceUI[,] Pieces { get; } = new PieceUI[8, 8];
-    private SquareUI[,] Squares { get; } = new SquareUI[8, 8];
+    private readonly PieceUI[,] Pieces = new PieceUI[8, 8];
+    private readonly SquareUI[,] Squares = new SquareUI[8, 8];
 
-    private RectangleUI[] Borders { get; } = new RectangleUI[4];
-    private Color BorderColor { get; } = new(100, 100, 100);
+    private readonly int SquareSize;
+    private readonly Rectangle Bounds;
+    private readonly RectangleUI[] Borders = new RectangleUI[4];
 
-    private int SquareSize { get; }
-    private int BorderSize { get; }
-    private Rectangle Bounds { get; }
     private PieceUI _draggedPiece;
     private Coord _draggedFrom;
-    private GameController _controller;
     private bool _isWhiteBottom = true;
+    private Coord[] _lastMove = [Coord.Null, Coord.Null];
 
-    public BoardUI(GameController controller, Vector2 position, int size) {
-        _controller = controller;
-
+    public BoardUI(Vector2 position, int size) {
         SquareSize = size / 8;
-        BorderSize = size / 60;
         Bounds = new((int) position.X, (int) position.Y, size, size);
 
         CreateBorders();
@@ -38,6 +34,14 @@ public class BoardUI {
     }
 
     public void Update() {
+        if (Input.IsLeftMouseButtonDown()) {
+            HandleMouseDown();
+        }
+
+        if (Input.IsLeftMouseButtonReleased()) {
+            HandleMouseUp();
+        }
+
         if (_draggedPiece != null) {
             _draggedPiece.Position = Input.MousePosition - (new Vector2(SquareSize) / 2);
         }
@@ -77,10 +81,8 @@ public class BoardUI {
         }
     }
 
-    public void SetPotentialMoveHighlights(List<Coord> squares, bool isHighlighted) {
-        foreach (Coord square in squares) {
-            Squares[square.File, square.Rank].SetPotentialMoveHighlight(isHighlighted);
-        }
+    public void SetPotentialMoveHighlight(Coord square, bool isHighlighted) {
+        Squares[square.File, square.Rank].SetPotentialMoveHighlight(isHighlighted);
     }
 
     public void SetLastMoveHighlight(Coord from, Coord to, bool isHighlighted) {
@@ -91,6 +93,85 @@ public class BoardUI {
     public void SetPerspective(bool isWhiteBottom) {
         _isWhiteBottom = isWhiteBottom;
         ResetSquarePositions();
+    }
+
+    public void SetLastMove(Coord from, Coord to) {
+        if (_lastMove[0] != Coord.Null && _lastMove[1] != Coord.Null) {
+            SetLastMoveHighlight(_lastMove[0], _lastMove[1], isHighlighted: false);
+        }
+
+        SetLastMoveHighlight(from, to, isHighlighted: true);
+        _lastMove[0] = from;
+        _lastMove[1] = to;
+    }
+
+
+    //
+    // Events
+    //
+
+
+    private void HandleMouseDown() {
+        if (!IsInBoard(Input.MousePosition)) {
+            return;
+        }
+
+        Coord coord = ToCoord(Input.MousePosition);
+        var piece = Pieces[coord.File, coord.Rank];
+
+        if (piece == null || IsColorLocked(piece.Color)) {
+            return;
+        }
+
+        _draggedPiece = piece;
+        _draggedFrom = coord;
+        OnPieceDragStarted?.Invoke(this, coord);
+    }
+
+    private void HandleMouseUp() {
+        if (_draggedPiece == null) {
+            return;
+        }
+
+        _draggedPiece.Position = ToPosition(_draggedFrom.File, _draggedFrom.Rank);
+        _draggedPiece = null;
+
+        if (!IsInBoard(Input.MousePosition)) {
+            OnPieceDragEnded?.Invoke(this, Move.Null);
+            return;
+        }
+
+        Coord draggedTo = ToCoord(Input.MousePosition);
+        OnPieceDragEnded?.Invoke(this, new(_draggedFrom, draggedTo));
+    }
+
+
+    //
+    // Drawing
+    //
+
+
+    private void PlacePiece(Engine.Piece piece, int file, int rank) {
+        PlayerColor color;
+        if (piece.Color == Engine.Color.Black) color = PlayerColor.Black;
+        else if (piece.Color == Engine.Color.White) color = PlayerColor.White;
+        else throw new ArgumentException($"Invalid piece color: {piece.Color}");
+
+        PieceType type;
+        if (piece.Type == Engine.PieceType.King) type = PieceType.King;
+        else if (piece.Type == Engine.PieceType.Queen) type = PieceType.Queen;
+        else if (piece.Type == Engine.PieceType.Rook) type = PieceType.Rook;
+        else if (piece.Type == Engine.PieceType.Bishop) type = PieceType.Bishop;
+        else if (piece.Type == Engine.PieceType.Knight) type = PieceType.Knight;
+        else if (piece.Type == Engine.PieceType.Pawn) type = PieceType.Pawn;
+        else throw new ArgumentException($"Invalid piece type: {piece.Type}");
+
+        Pieces[file, rank] = new(
+            color: color,
+            type: type,
+            position: ToPosition(file, rank),
+            size: SquareSize
+        );
     }
 
     private void ResetSquarePositions() {
@@ -105,87 +186,36 @@ public class BoardUI {
         }
     }
 
-    public void OnMouseDown() {
-        if (!IsInBoard(Input.MousePosition)) {
-            return;
-        }
-
-        Coord coord = ToCoord(Input.MousePosition);
-        var piece = Pieces[coord.File, coord.Rank];
-        if (piece != null && ((piece.Color == PieceColor.White && AreWhitePiecesLocked) || (piece.Color == PieceColor.Black && AreBlackPiecesLocked))) {
-            return;
-        }
-
-        _draggedFrom = coord;
-        _draggedPiece = piece;
-        _controller.OnMouseDown(coord);
-    }
-
-    public void OnMouseReleased() {
-        if (_draggedPiece == null) {
-            return;
-        }
-
-        Coord coord = ToCoord(Input.MousePosition);
-        _controller.OnMouseRelease(_draggedFrom, coord);
-        _draggedPiece.Position = ToPosition(_draggedFrom.File, _draggedFrom.Rank);
-        _draggedPiece = null;
-    }
-
-    private void PlacePiece(Engine.Piece piece, int file, int rank) {
-        PieceColor color;
-        if (piece.Color == Engine.Color.Black) color = PieceColor.Black;
-        else if (piece.Color == Engine.Color.White) color = PieceColor.White;
-        else throw new ArgumentException($"Invalid piece color: {piece.Color}");
-
-        PieceType type;
-        if (piece.Type == Engine.PieceType.King) type = PieceType.King;
-        else if (piece.Type == Engine.PieceType.Queen) type = PieceType.Queen;
-        else if (piece.Type == Engine.PieceType.Rook) type = PieceType.Rook;
-        else if (piece.Type == Engine.PieceType.Bishop) type = PieceType.Bishop;
-        else if (piece.Type == Engine.PieceType.Knight) type = PieceType.Knight;
-        else if (piece.Type == Engine.PieceType.Pawn) type = PieceType.Pawn;
-        else throw new ArgumentException($"Invalid piece type: {piece.Type}");
-
-        PlacePiece(color, type, file, rank);
-    }
-
-    private void PlacePiece(PieceColor color, PieceType type, int file, int rank) {
-        Pieces[file, rank] = new(
-            color: color,
-            type: type,
-            position: ToPosition(file, rank),
-            size: SquareSize
-        );
-    }
-
     private void CreateBorders() {
+        Color color = new(100, 100, 100);
+        int size = SquareSize / 8;
+
         // Top
         Borders[0] = new(
-            position: new(Bounds.Left - BorderSize, Bounds.Top - BorderSize),
-            size: new(Bounds.Width + BorderSize * 2, BorderSize),
-            color: BorderColor
+            position: new(Bounds.Left - size, Bounds.Top - size),
+            size: new(Bounds.Width + size * 2, size),
+            color: color
         );
 
         // Bottom
         Borders[1] = new(
-            position: new(Bounds.Left - BorderSize, Bounds.Bottom),
-            size: new(Bounds.Width + BorderSize * 2, BorderSize),
-            color: BorderColor
+            position: new(Bounds.Left - size, Bounds.Bottom),
+            size: new(Bounds.Width + size * 2, size),
+            color: color
         );
 
         // Left
         Borders[2] = new(
-            position: new(Bounds.Left - BorderSize, Bounds.Top),
-            size: new(BorderSize, Bounds.Height),
-            color: BorderColor
+            position: new(Bounds.Left - size, Bounds.Top),
+            size: new(size, Bounds.Height),
+            color: color
         );
 
         // Right
         Borders[3] = new(
             position: new(Bounds.Right, Bounds.Top),
-            size: new(BorderSize, Bounds.Height),
-            color: BorderColor
+            size: new(size, Bounds.Height),
+            color: color
         );
     }
 
@@ -201,6 +231,20 @@ public class BoardUI {
         }
     }
 
+
+    //
+    // Utility Functions
+    //
+
+
+    private bool IsInBoard(Vector2 position) {
+        return Bounds.Contains(position);
+    }
+
+    private bool IsColorLocked(PlayerColor color) {
+        return (color == PlayerColor.White && AreWhitePiecesLocked) || (color == PlayerColor.Black && AreBlackPiecesLocked);
+    }
+
     private Coord ToCoord(Vector2 position) {
         int file = (int) ((position.X - Bounds.X) / SquareSize);
         int rank = (int) ((position.Y - Bounds.Y) / SquareSize);
@@ -214,9 +258,5 @@ public class BoardUI {
     private Vector2 ToPosition(int file, int rank) {
         int r = _isWhiteBottom ? 7 - rank : rank;
         return new Vector2(file, r) * SquareSize + new Vector2(Bounds.X, Bounds.Y);
-    }
-
-    private bool IsInBoard(Vector2 position) {
-        return Bounds.Contains(position);
     }
 }

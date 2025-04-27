@@ -4,11 +4,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Promotinator.Graphics.UI;
 
-public enum PieceColor {
-    White,
-    Black,
-}
-
 public enum PieceType {
     King,
     Queen,
@@ -19,7 +14,7 @@ public enum PieceType {
 }
 
 public class PieceUI {
-    public PieceColor Color;
+    public PlayerColor Color;
     public PieceType Type;
     public Vector2 Position;
     public int Size;
@@ -27,12 +22,12 @@ public class PieceUI {
     private const int SpritesPerRow = 6;
     private const int SpritesPerColumn = 2;
 
-    // Array of [PieceColor, PieceType].
+    // Array of [PlayerColor, PieceType].
     private static Rectangle[,] SourceRectangles { get; set; } = new Rectangle[SpritesPerColumn, SpritesPerRow];
 
     private static Texture2D SpriteSheet;
 
-    public PieceUI(PieceColor color, PieceType type, Vector2 position, int size) {
+    public PieceUI(PlayerColor color, PieceType type, Vector2 position, int size) {
         Color = color;
         Type = type;
         Position = position;
@@ -44,19 +39,19 @@ public class PieceUI {
         int width = SpriteSheet.Width / SpritesPerRow;
         int height = SpriteSheet.Height / SpritesPerColumn;
 
-        SourceRectangles[(int) PieceColor.White, (int) PieceType.King]      = new(width * 0, 0, width, height);
-        SourceRectangles[(int) PieceColor.White, (int) PieceType.Queen]     = new(width * 1, 0, width, height);
-        SourceRectangles[(int) PieceColor.White, (int) PieceType.Bishop]    = new(width * 2, 0, width, height);
-        SourceRectangles[(int) PieceColor.White, (int) PieceType.Knight]    = new(width * 3, 0, width, height);
-        SourceRectangles[(int) PieceColor.White, (int) PieceType.Rook]      = new(width * 4, 0, width, height);
-        SourceRectangles[(int) PieceColor.White, (int) PieceType.Pawn]      = new(width * 5, 0, width, height);
+        SourceRectangles[(int) PlayerColor.White, (int) PieceType.King]      = new(width * 0, 0, width, height);
+        SourceRectangles[(int) PlayerColor.White, (int) PieceType.Queen]     = new(width * 1, 0, width, height);
+        SourceRectangles[(int) PlayerColor.White, (int) PieceType.Bishop]    = new(width * 2, 0, width, height);
+        SourceRectangles[(int) PlayerColor.White, (int) PieceType.Knight]    = new(width * 3, 0, width, height);
+        SourceRectangles[(int) PlayerColor.White, (int) PieceType.Rook]      = new(width * 4, 0, width, height);
+        SourceRectangles[(int) PlayerColor.White, (int) PieceType.Pawn]      = new(width * 5, 0, width, height);
 
-        SourceRectangles[(int) PieceColor.Black, (int) PieceType.King]      = new(width * 0, height, width, height);
-        SourceRectangles[(int) PieceColor.Black, (int) PieceType.Queen]     = new(width * 1, height, width, height);
-        SourceRectangles[(int) PieceColor.Black, (int) PieceType.Bishop]    = new(width * 2, height, width, height);
-        SourceRectangles[(int) PieceColor.Black, (int) PieceType.Knight]    = new(width * 3, height, width, height);
-        SourceRectangles[(int) PieceColor.Black, (int) PieceType.Rook]      = new(width * 4, height, width, height);
-        SourceRectangles[(int) PieceColor.Black, (int) PieceType.Pawn]      = new(width * 5, height, width, height);
+        SourceRectangles[(int) PlayerColor.Black, (int) PieceType.King]      = new(width * 0, height, width, height);
+        SourceRectangles[(int) PlayerColor.Black, (int) PieceType.Queen]     = new(width * 1, height, width, height);
+        SourceRectangles[(int) PlayerColor.Black, (int) PieceType.Bishop]    = new(width * 2, height, width, height);
+        SourceRectangles[(int) PlayerColor.Black, (int) PieceType.Knight]    = new(width * 3, height, width, height);
+        SourceRectangles[(int) PlayerColor.Black, (int) PieceType.Rook]      = new(width * 4, height, width, height);
+        SourceRectangles[(int) PlayerColor.Black, (int) PieceType.Pawn]      = new(width * 5, height, width, height);
     }
 
     public void Draw(SpriteBatch spriteBatch) {
