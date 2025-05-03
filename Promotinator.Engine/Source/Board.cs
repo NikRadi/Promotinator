@@ -186,15 +186,15 @@ public class Board {
     }
 
     public GameState GetState() {
-//        var moves = MoveGenerator.GenerateMoves(this);
-//
-//        if (moves.Count == 0) {
-//            if (IsKingInCheck()) {
-//                return Turn == Color.White ? GameState.BlackWin : GameState.WhiteWin;
-//            }
-//
-//            return GameState.DrawByStalemate;
-//        }
+        var moves = MoveGenerator.GenerateMoves(this);
+
+        if (moves.Count == 0) {
+            if (IsKingInCheck()) {
+                return Turn == Color.White ? GameState.BlackWin : GameState.WhiteWin;
+            }
+
+            return GameState.DrawByStalemate;
+        }
 
         if (FiftyMoveCounter >= 100) {
             return GameState.DrawByFiftyMoveRule;

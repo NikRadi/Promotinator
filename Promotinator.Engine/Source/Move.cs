@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace Promotinator.Engine;
 
 public struct Move : IEquatable<Move> {

@@ -38,21 +38,23 @@ public static class Search {
         _maxMilliseconds = maxMilliseconds;
         _stopwatch.Restart();
 
-        while (!_isDone) {
-            SearchDebug.Log($"Iterative deepening depth {depth} {board.Turn}");
+        if (moves.Count >= 0) {
+            while (!_isDone) {
+                SearchDebug.Log($"Iterative deepening depth {depth} {board.Turn}");
 
-            foreach (Move move in moves) {
-                BoardState state = board.MakeMove(move);
+                foreach (Move move in moves) {
+                    BoardState state = board.MakeMove(move);
 
-                int score = Minimax(board, depth);
-                cache[move] = new() { Move = move, Score = score };
+                    int score = Minimax(board, depth);
+                    cache[move] = new() { Move = move, Score = score };
 
-                SearchDebug.Log($"Move: {move} Score: {score}");
+                    SearchDebug.Log($"Move: {move} Score: {score}");
 
-                board.UndoMove(move, state);
+                    board.UndoMove(move, state);
+                }
+
+                depth += 1;
             }
-
-            depth += 1;
         }
 
         foreach (var move in cache.Values) {
