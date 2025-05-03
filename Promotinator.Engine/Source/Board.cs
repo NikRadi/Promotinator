@@ -212,7 +212,40 @@ public class Board {
     }
 
     private bool IsKingInCheck() {
-        return false;
+        Coord kingCoord = FindKingCoord(Turn);
+        Color opponent = Turn == Color.White ? Color.Black : Color.Black;
+        return IsSquareAttacked(kingCoord, opponent);
+    }
+
+    private Coord FindKingCoord(Color color) {
+        for (int file = 0; file < 8; file++)
+        {
+            for (int rank = 0; rank < 8; rank++)
+            {
+                Piece? piece = Pieces[file, rank];
+                if (piece.HasValue && piece.Value.Color == color && piece.Value.Type == PieceType.King)
+                {
+                    return new Coord(file, rank);
+                }
+            }
+        }
+        // Should never happen in a valid game.
+        return new Coord(-1, -1);
+    }
+
+    private bool IsSquareAttacked(Coord coord, Color attackingColor) {
+        // Generate pseudo-legal moves for the attacking color
+        List<Move> attackingMoves = MoveGenerator.GeneratePseudoLegalMoves(this, onlyAttack: true);
+
+        // Check if any of those moves capture the king
+        foreach (Move move in attackingMoves)
+        {
+            if (move.To == coord)
+            {
+                return true; // The square is attacked
+            }
+        }
+        return false; // The square is not attacked
     }
 
     private int RepitionCount() {

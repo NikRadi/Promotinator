@@ -16,7 +16,7 @@ public static class MoveGenerator {
         return moves;
     }
 
-    private static List<Move> GeneratePseudoLegalMoves(Board board, bool onlyAttack = false) {
+    public static List<Move> GeneratePseudoLegalMoves(Board board, bool onlyAttack = false) {
         List<Move> moves = [];
 
         for (int file = 0; file < 8; ++file) {
