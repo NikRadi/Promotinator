@@ -13,18 +13,20 @@ public static class Search {
         public int NumNodesEvaluated;
         public bool IsCanceledDueToTime;
         public bool IsCanceledDueToDepthLimit;
+        public bool IsCanceledDueToNoMoves;
     }
 
     private static bool _isDone;
     private static int _maxMilliseconds;
     private static Stopwatch _stopwatch = new();
     private static Diagnostics _diagnostics;
+    private static Random _rand = new (123);
 
     public static async Task<Move> FindBestMoveAsync(Board board) {
         return await Task.Run(() => FindBestMove(board));
     }
 
-    public static Move FindBestMove(Board board, int maxMilliseconds = 500) {
+    public static Move FindBestMove(Board board, int maxMilliseconds = 99999) {
         SearchDebug.ClearLog();
 
         List<Move> moves = MoveGenerator.GenerateMoves(board);
@@ -39,6 +41,7 @@ public static class Search {
         }
 
         // Iterative deepening
+        int maxDepth = 3;
         int depth = 0;
         _isDone = false;
         _maxMilliseconds = maxMilliseconds;
@@ -52,7 +55,7 @@ public static class Search {
                 foreach (Move move in moves) {
                     BoardState state = board.MakeMove(move);
 
-                    int score = Minimax(board, depth);
+                    var scoredMove = Minimax(board, depth);
 
                     board.UndoMove(move, state);
 
@@ -60,9 +63,15 @@ public static class Search {
                         break;
                     }
 
-                    cache[move] = new() { Move = move, Score = score };
+                    cache[move] = new() { Move = move, Score = scoredMove.Score };
 
-                    SearchDebug.Log($"({score}) {move}");
+                    string log = $"({scoredMove.Score}) {move}";
+
+                    if (depth >= 1) {
+                        log += $" {scoredMove.Move}";
+                    }
+
+                    SearchDebug.Log(log);
                 }
 
                 depth += 1;
@@ -70,12 +79,22 @@ public static class Search {
                 if (_diagnostics.IsCanceledDueToTime) {
                     SearchDebug.Log("Canceled due to time");
                 }
-                else if (_diagnostics.IsCanceledDueToDepthLimit) {
+
+                if (_diagnostics.IsCanceledDueToDepthLimit) {
                     SearchDebug.Log("Canceled due to depth limit");
+                }
+
+                if (_diagnostics.IsCanceledDueToNoMoves) {
+                    SearchDebug.Log("Canceled due to no moves");
                 }
 
                 SearchDebug.Log($"Nodes visited: {_diagnostics.NumNodesVisited}");
                 SearchDebug.Log($"Nodes evaluated: {_diagnostics.NumNodesEvaluated}");
+
+                if (depth >= maxDepth) {
+                    _isDone = true;
+                }
+
                 SearchDebug.Log("");
             }
         }
@@ -105,18 +124,18 @@ public static class Search {
         }
 
         List<Move> bestMoves = scoreToMoves[bestScore];
-        Move bestMove = bestMoves[new Random().Next(0, bestMoves.Count - 1)];
+        Move bestMove = bestMoves[_rand.Next(0, bestMoves.Count - 1)];
         SearchDebug.Log($"Best move: {bestMove}");
 
         return bestMove;
     }
 
-    private static int Minimax(Board board, int depth) {
+    private static ScoredMove Minimax(Board board, int depth) {
         if (MillisecondsLeft() <= 0) {
             _isDone = true;
             _stopwatch.Stop();
             _diagnostics.IsCanceledDueToTime = true;
-            return 0;
+            return new() { Score = 0 };
         }
 
         _diagnostics.NumNodesVisited += 1;
@@ -124,47 +143,53 @@ public static class Search {
         if (depth == 0) {
             _diagnostics.NumNodesEvaluated += 1;
             _diagnostics.IsCanceledDueToDepthLimit = true;
-            return Eval.Score(board);
+            return new() { Score = Eval.Score(board) };
         }
 
         List<Move> moves = MoveGenerator.GenerateMoves(board);
-        Move bestMove = moves[0];
-        int bestScore;
+
+        if (moves.Count == 0) {
+            _diagnostics.NumNodesEvaluated += 1;
+            _diagnostics.IsCanceledDueToNoMoves = true;
+            return new() { Score = Eval.Score(board) };
+        }
+
+        ScoredMove result = new() { Move = moves[0] };
 
         if (board.Turn == Color.White) {
-            bestScore = int.MinValue;
+            result.Score = int.MinValue;
 
             foreach (Move move in moves) {
                 BoardState state = board.MakeMove(move);
-                int newScore = Minimax(board, depth - 1);
+                var scoredMove = Minimax(board, depth - 1);
                 board.UndoMove(move, state);
 
-                bool isScoreMaximized = newScore > bestScore;
+                bool isScoreMaximized = scoredMove.Score > result.Score;
 
                 if (isScoreMaximized) {
-                    bestScore = newScore;
-                    bestMove = move;
+                    result.Score = scoredMove.Score;
+                    result.Move = move;
                 }
             }
         }
         else {
-            bestScore = int.MaxValue;
+            result.Score = int.MaxValue;
 
             foreach (Move move in moves) {
                 BoardState state = board.MakeMove(move);
-                int newScore = Minimax(board, depth - 1);
+                var scoredMove = Minimax(board, depth - 1);
                 board.UndoMove(move, state);
 
-                bool isScoreMinimized = newScore < bestScore;
+                bool isScoreMinimized = scoredMove.Score < result.Score;
 
                 if (isScoreMinimized) {
-                    bestScore = newScore;
-                    bestMove = move;
+                    result.Score = scoredMove.Score;
+                    result.Move = move;
                 }
             }
         }
 
-        return bestScore;
+        return result;
     }
 
     private static long MillisecondsLeft() {
