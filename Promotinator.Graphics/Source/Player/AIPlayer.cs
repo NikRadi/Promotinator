@@ -15,7 +15,7 @@ public class AIPlayer : IPlayer {
 
     public void StartMakingMove() {
         new Task(() => {
-            List<Engine.ScoredMove> moves = Engine.Search.FindBestMove(_board);
+            List<Engine.ScoredMove> moves = Engine.Search.FindBestMove(_board, 100);
             Engine.Move move = moves[0].Move;
             OnMakeMove?.Invoke(this, move);
         }).Start();

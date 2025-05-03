@@ -29,7 +29,12 @@ public class ChessUI : Game {
         RectangleUI.Initialize(GraphicsDevice);
 
         float centerY = GraphicsDevice.Viewport.Height / 2;
-        string[] fens = [FENUtil.StartPosition];
+        string[] fens = [
+            FENUtil.StartPosition,
+            FENUtil.StartPosition,
+            FENUtil.StartPosition,
+        ];
+
         _tournament = new(centerY, fens);
 
         base.Initialize();
@@ -39,7 +44,7 @@ public class ChessUI : Game {
         Input.Update();
         _tournament.Update();
 
-        if (Input.IsKeyDown(Keys.Escape)) {
+        if (Input.IsKeyPressedOnce(Keys.Escape)) {
             Exit();
         }
 

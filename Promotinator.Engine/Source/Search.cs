@@ -16,7 +16,7 @@ public static class Search {
         return await Task.Run(() => FindBestMove(board));
     }
 
-    public static List<ScoredMove> FindBestMove(Board board, int maxMilliseconds = 500) {
+    public static List<ScoredMove> FindBestMove(Board board, int maxMilliseconds = 1000) {
         SearchDebug.ClearLog();
 
         List<ScoredMove> result = [];
@@ -39,13 +39,15 @@ public static class Search {
         _stopwatch.Restart();
 
         while (!_isDone) {
+            SearchDebug.Log($"Iterative deepening depth {depth} {board.Turn}");
+
             foreach (Move move in moves) {
                 BoardState state = board.MakeMove(move);
 
                 int score = Minimax(board, depth);
                 cache[move] = new() { Move = move, Score = score };
 
-                SearchDebug.Log($"Move:{move} Score:{score}");
+                SearchDebug.Log($"Move: {move} Score: {score}");
 
                 board.UndoMove(move, state);
             }
@@ -65,6 +67,7 @@ public static class Search {
     private static int Minimax(Board board, int depth) {
         if (_stopwatch.ElapsedMilliseconds >= _maxMilliseconds) {
             _isDone = true;
+            _stopwatch.Stop();
             return 0;
         }
 

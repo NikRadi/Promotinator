@@ -1,4 +1,5 @@
-﻿using Promotinator.Engine.Utils;
+﻿using System.Diagnostics;
+using Promotinator.Engine.Utils;
 
 namespace Promotinator.Engine;
 
@@ -7,6 +8,7 @@ public class Board {
     public CastlingRights CastlingRights;
     public Coord? EnPassantSquare;
     public Color? ColorOfPlayerInCheck;
+    public int FiftyMoveCounter;
 
     // (file, rank), (0, 0) = a1, (7, 7) = h8.
     public Piece?[,] Pieces = new Piece?[8, 8];
@@ -29,9 +31,24 @@ public class Board {
     }
 
     public BoardState MakeMove(Move move) {
-        BoardState state = new() { EnPassantSquare = EnPassantSquare, CastlingRights = CastlingRights };
+        BoardState state = new() {
+            EnPassantSquare = EnPassantSquare,
+            CastlingRights = CastlingRights,
+            FiftyMoveCounter = FiftyMoveCounter
+        };
 
+        Debug.Assert(Pieces[move.From.File, move.From.Rank].HasValue, $"Cannot move non-existing piece: {move}");
         Piece piece = Pieces[move.From.File, move.From.Rank].Value;
+
+        // Update 50-move rule
+        bool isPieceCaptured = move.CapturedPiece.HasValue;
+        bool isPawnMoved = piece.Is(PieceType.Pawn);
+        if (!isPieceCaptured && !isPawnMoved) {
+            FiftyMoveCounter += 1;
+        }
+        else {
+            FiftyMoveCounter = 0;
+        }
 
         // Check for en passant square
         Coord? newEnPassantSquare = null;
@@ -165,6 +182,45 @@ public class Board {
 
         EnPassantSquare = state.EnPassantSquare;
         CastlingRights = state.CastlingRights;
+        FiftyMoveCounter = state.FiftyMoveCounter;
+    }
+
+    public GameState GetState() {
+//        var moves = MoveGenerator.GenerateMoves(this);
+//
+//        if (moves.Count == 0) {
+//            if (IsKingInCheck()) {
+//                return Turn == Color.White ? GameState.BlackWin : GameState.WhiteWin;
+//            }
+//
+//            return GameState.DrawByStalemate;
+//        }
+
+        if (FiftyMoveCounter >= 100) {
+            return GameState.DrawByFiftyMoveRule;
+        }
+
+        if (RepitionCount() == 3) {
+            return GameState.DrawByThreefoldRepitition;
+        }
+
+        if (IsDeadPosition()) {
+            return GameState.DrawByDeadPosition;
+        }
+
+        return GameState.InProgress;
+    }
+
+    private bool IsKingInCheck() {
+        return false;
+    }
+
+    private int RepitionCount() {
+        return 0;
+    }
+
+    private bool IsDeadPosition() {
+        return false;
     }
 
     internal bool IsEmpty(int file, int rank) {
@@ -186,7 +242,12 @@ public class Board {
     private void Init(FENBoardState state) {
         Turn = state.Turn;
         CastlingRights = state.CastlingRights;
-        Pieces = state.Pieces;
         EnPassantSquare = state.EnPassantSquare;
+        FiftyMoveCounter = 0;
+        Pieces = state.Pieces;
+
+        if (IsKingInCheck()) {
+            ColorOfPlayerInCheck = Turn;
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,26 +14,17 @@ public struct MoveInfo {
     public List<Engine.ScoredMove> Scores;
 }
 
-internal enum GameState {
-    None,
-    WhiteToMove,
-    BlackToMove,
-    WhiteWin,
-    BlackWin,
-    Draw,
-}
-
 public class GameController {
+    public Engine.GameState State => _board.GetState();
+
     private Engine.Board _board;
     private BoardUI _boardUI;
 
     private IPlayer _whitePlayer;
     private IPlayer _blackPlayer;
-    private GameState _state;
 
     public GameController(float centerY = 0) {
         _board = new();
-        _state = GameState.None;
 
         int size = 600;
         Vector2 position = new(50, centerY - (size / 2));
@@ -52,20 +44,13 @@ public class GameController {
 
     public void StartGame() {
         if (_board.Turn == Engine.Color.White) {
+            Console.WriteLine("GameController: white starting game");
             _whitePlayer.StartMakingMove();
-            _state = GameState.WhiteToMove;
         }
         else if (_board.Turn == Engine.Color.Black) {
+            Console.WriteLine("GameController: black starting game");
             _blackPlayer.StartMakingMove();
-            _state = GameState.BlackToMove;
         }
-        else {
-            _state = GameState.None;
-        }
-    }
-
-    public bool IsGameFinished() {
-        return _state == GameState.WhiteWin || _state == GameState.BlackWin || _state == GameState.Draw || _state == GameState.None;
     }
 
     public void Update() {
