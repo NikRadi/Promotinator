@@ -45,18 +45,23 @@ public class Tournament {
     }
 
     private void StartNextGame() {
-        if (Input.IsKeyPressedOnce(Keys.Space)) {
-            Console.WriteLine($"Tournament::StartNextGame() - starting game {_currentFenIndex + 1} of {_fens.Length}");
-            var fen = _fens[_currentFenIndex];
-            _currentFenIndex += 1;
+        var fen = _fens[_currentFenIndex];
+        _currentFenIndex += 1;
 
-            _gameController.SetBoardFEN(fen);
-            _gameController.StartGame();
-        }
+        Console.WriteLine($"Tournament::StartNextGame() - starting game {_currentFenIndex} of {_fens.Length}");
+
+        _gameController.SetBoardFEN(fen);
+        _gameController.StartGame();
     }
 
     private void HandleGameOver(object sender, PlayerColor? winner) {
-        Console.WriteLine($"Tournament::HandleGameOver() - winner is {winner}");
+        Console.Write("Tournament::HandleGameOver() - ");
+        if (winner.HasValue) {
+            Console.WriteLine($"{winner.Value} wins");
+        }
+        else {
+            Console.WriteLine("draw");
+        }
 
         if (winner.HasValue) {
             if (winner.Value == PlayerColor.White) {

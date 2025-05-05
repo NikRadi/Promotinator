@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Promotinator.Graphics.Player;
 using Promotinator.Graphics.UI;
 using Promotinator.Graphics.Util;
@@ -12,7 +12,6 @@ namespace Promotinator.Graphics;
 public struct MoveInfo {
     public Engine.Move Move;
     public Engine.BoardState State;
-    public List<Engine.ScoredMove> Scores;
 }
 
 public class GameController {
@@ -25,6 +24,7 @@ public class GameController {
     private IPlayer _whitePlayer;
     private IPlayer _blackPlayer;
     private Task<Engine.Move> _moveTask;
+    private bool _isPaused;
 
     public GameController(float centerY) {
         _board = new();
@@ -40,11 +40,19 @@ public class GameController {
     public async Task Update() {
         _boardUI.Update();
 
+        if (Input.IsKeyPressedOnce(Keys.Space)) {
+            _isPaused = false;
+        }
+
         if (!IsStarted) {
             return;
         }
 
         if (_moveTask != null && !_moveTask.IsCompleted) {
+            return;
+        }
+
+        if (_isPaused) {
             return;
         }
 
@@ -57,6 +65,7 @@ public class GameController {
             _moveTask = _blackPlayer.StartMakingMove();
         }
 
+        _isPaused = true;
         move = await _moveTask;
         MakeMove(move);
 
@@ -78,7 +87,7 @@ public class GameController {
             if (isWhiteWin) {
                 OnGameOver?.Invoke(this, PlayerColor.White);
             }
-            else if (isWhiteWin) {
+            else if (isBlackWin) {
                 OnGameOver?.Invoke(this, PlayerColor.Black);
             }
             else {
@@ -98,6 +107,9 @@ public class GameController {
     public void SetBoardFEN(string fen) {
         _board.SetState(fen);
         _boardUI.PlacePieces(_board);
+
+        _whitePlayer = new AIPlayer(_board);
+        _blackPlayer = new AIPlayer(_board);
     }
 
     private void MakeMove(Engine.Move move) {
