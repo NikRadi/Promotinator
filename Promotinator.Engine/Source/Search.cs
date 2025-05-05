@@ -12,7 +12,6 @@ public static class Search {
         public int NumNodesVisited;
         public int NumNodesEvaluated;
         public bool IsCanceledDueToTime;
-        public bool IsCanceledDueToDepthLimit;
         public bool IsCanceledDueToNoMoves;
     }
 
@@ -20,13 +19,13 @@ public static class Search {
     private static int _maxMilliseconds;
     private static Stopwatch _stopwatch = new();
     private static Diagnostics _diagnostics;
-    private static Random _rand = new (123);
+    private static Random _rand = new(2);
 
     public static async Task<Move> FindBestMoveAsync(Board board) {
         return await Task.Run(() => FindBestMove(board));
     }
 
-    public static Move FindBestMove(Board board, int maxMilliseconds = 99999) {
+    public static Move FindBestMove(Board board, int maxMilliseconds = 200) {
         SearchDebug.ClearLog();
 
         List<Move> moves = MoveGenerator.GenerateMoves(board);
@@ -41,7 +40,7 @@ public static class Search {
         }
 
         // Iterative deepening
-        int maxDepth = 3;
+        int maxDepth = 256;
         int depth = 0;
         _isDone = false;
         _maxMilliseconds = maxMilliseconds;
@@ -78,10 +77,6 @@ public static class Search {
 
                 if (_diagnostics.IsCanceledDueToTime) {
                     SearchDebug.Log("Canceled due to time");
-                }
-
-                if (_diagnostics.IsCanceledDueToDepthLimit) {
-                    SearchDebug.Log("Canceled due to depth limit");
                 }
 
                 if (_diagnostics.IsCanceledDueToNoMoves) {
@@ -142,7 +137,6 @@ public static class Search {
 
         if (depth == 0) {
             _diagnostics.NumNodesEvaluated += 1;
-            _diagnostics.IsCanceledDueToDepthLimit = true;
             return new() { Score = Eval.Score(board) };
         }
 
@@ -151,7 +145,12 @@ public static class Search {
         if (moves.Count == 0) {
             _diagnostics.NumNodesEvaluated += 1;
             _diagnostics.IsCanceledDueToNoMoves = true;
-            return new() { Score = Eval.Score(board) };
+
+            if (board.IsKingInCheck()) {
+                return new() { Score = board.Turn == Color.White ? int.MinValue : int.MaxValue };
+            }
+
+            return new() { Score = 0 };
         }
 
         ScoredMove result = new() { Move = moves[0] };
