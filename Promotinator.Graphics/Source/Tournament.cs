@@ -8,7 +8,6 @@ namespace Promotinator.Graphics;
 public class Tournament {
     private string[] _fens;
     private int _currentFenIndex;
-    private bool _hasWrittenResultsToFile;
     private GameController _gameController;
 
     public Tournament(float centerY, string[] fens) {
@@ -25,12 +24,7 @@ public class Tournament {
         bool hasMoreGamesLeft = _currentFenIndex < _fens.Length;
 
         if (!hasMoreGamesLeft) {
-            if (!_hasWrittenResultsToFile) {
-                Console.WriteLine("Tournament::Update() - tournament done, writing results to file");
-                _hasWrittenResultsToFile = true;
-                WriteResultsToFile();
-            }
-
+            Console.WriteLine("Tournament::Update() - tournament done");
             return;
         }
 
@@ -73,9 +67,5 @@ public class Tournament {
         else {
             DebugInfo.NumDraws += 1;
         }
-    }
-
-    private void WriteResultsToFile() {
-        // TODO
     }
 }
