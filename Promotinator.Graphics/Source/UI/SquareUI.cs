@@ -21,7 +21,7 @@ public class SquareUI {
     private static Color LastMoveDarkColor { get; } = new(200, 200, 50);
     private static Color LastMoveLightColor { get; } = new(255, 255, 100);
     private static Color PotentialMoveDarkColor { get; } = new(30, 70, 120);
-    private static Color PotentialColorLightColor { get; } = new(85, 190, 230);
+    private static Color PotentialMoveLightColor { get; } = new(85, 190, 230);
 
     public SquareUI(Vector2 position, int size, bool isLightSquare) {
         _isLight = isLightSquare;
@@ -44,8 +44,10 @@ public class SquareUI {
     }
 
     private void UpdateColor() {
+        // The order of these if-statements is important.
+        // If _isPotentialMove and _isLastMove are true simultaniously then it should highlight as potential move.
         if (_isPotentialMove) {
-            _rectUI.Color = _isLight ? PotentialColorLightColor : PotentialMoveDarkColor;
+            _rectUI.Color = _isLight ? PotentialMoveLightColor : PotentialMoveDarkColor;
         }
         else if (_isLastMove) {
             _rectUI.Color = _isLight ? LastMoveLightColor : LastMoveDarkColor;
