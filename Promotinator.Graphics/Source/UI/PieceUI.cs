@@ -14,18 +14,17 @@ public enum PieceType {
 }
 
 public class PieceUI {
-    public PlayerColor Color;
-    public PieceType Type;
+    public readonly PlayerColor Color;
+    public readonly PieceType Type;
     public Vector2 Position;
     public int Size;
 
     private const int SpritesPerRow = 6;
     private const int SpritesPerColumn = 2;
+    private static Texture2D SpriteSheet;
 
     // Array of [PlayerColor, PieceType].
     private static Rectangle[,] SourceRectangles { get; set; } = new Rectangle[SpritesPerColumn, SpritesPerRow];
-
-    private static Texture2D SpriteSheet;
 
     public PieceUI(PlayerColor color, PieceType type, Vector2 position, int size) {
         Color = color;
