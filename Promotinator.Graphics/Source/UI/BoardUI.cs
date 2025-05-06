@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Promotinator.Graphic;
 using Promotinator.Graphics.Util;
 
 namespace Promotinator.Graphics.UI;
@@ -31,6 +32,7 @@ public class BoardUI {
 
         CreateBorders();
         CreateSquares();
+        AddLabels();
     }
 
     public void Update() {
@@ -188,7 +190,7 @@ public class BoardUI {
 
     private void CreateBorders() {
         Color color = new(100, 100, 100);
-        int size = SquareSize / 8;
+        int size = SquareSize / 3;
 
         // Top
         Borders[0] = new(
@@ -228,6 +230,29 @@ public class BoardUI {
                     isLightSquare: (file + rank) % 2 == 1
                 );
             }
+        }
+    }
+
+    private void AddLabels() {
+        // TODO: Replace with SpriteFont.MeasureString() to center correctly.
+        int rankOffsetX = -15;
+
+        for (int rank = 0; rank < 8; ++rank) {
+            Text text = new() {
+                Position = ToPosition(0, rank) + new Vector2(rankOffsetX, 0),
+                Value = (rank + 1).ToString()
+            };
+
+            TextRenderer.Add(text);
+        }
+
+        for (int file = 0; file < 8; ++file) {
+            Text text = new() {
+                Position = ToPosition(file, 0) + new Vector2(0, SquareSize),
+                Value = ((char) (file + 'a')).ToString()
+            };
+
+            TextRenderer.Add(text);
         }
     }
 

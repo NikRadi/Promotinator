@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Promotinator.Engine.Utils;
+using Promotinator.Graphic;
 using Promotinator.Graphics.UI;
 
 namespace Promotinator.Graphics;
@@ -56,7 +57,7 @@ public class ChessUI : Game {
     protected override void LoadContent() {
         _spriteBatch = new(GraphicsDevice);
         PieceUI.LoadContent(Content);
-        DebugInfo.LoadContent(Content);
+        TextRenderer.LoadContent(Content);
 
         base.LoadContent();
     }
@@ -67,7 +68,9 @@ public class ChessUI : Game {
         _spriteBatch.Begin();
         _tournament.Draw(_spriteBatch);
 
+        TextRenderer.Draw(_spriteBatch);
         DebugInfo.Draw(_spriteBatch);
+
         _spriteBatch.End();
 
         base.Draw(gameTime);
