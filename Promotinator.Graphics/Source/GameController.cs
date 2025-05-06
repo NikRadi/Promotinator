@@ -9,11 +9,6 @@ using Promotinator.Graphics.Util;
 
 namespace Promotinator.Graphics;
 
-public struct MoveInfo {
-    public Engine.Move Move;
-    public Engine.BoardState State;
-}
-
 public class GameController {
     public event EventHandler<PlayerColor?> OnGameOver;
 
@@ -65,7 +60,6 @@ public class GameController {
             _moveTask = _blackPlayer.StartMakingMove();
         }
 
-        _isPaused = true;
         move = await _moveTask;
         MakeMove(move);
 
@@ -119,20 +113,5 @@ public class GameController {
         Coord from = new(move.From.File, move.From.Rank);
         Coord to = new(move.To.File, move.To.Rank);
         _boardUI.SetLastMove(from, to);
-
-//        UpdateBoardLockedColor();
-//        UpdateBoardOrientation();
     }
-
-//    private void UpdateBoardLockedColor() {
-//        _boardUI.AreWhitePiecesLocked = _whitePlayer is not HumanPlayer || _board.Turn != Engine.Color.White;
-//        _boardUI.AreBlackPiecesLocked = _blackPlayer is not HumanPlayer || _board.Turn != Engine.Color.Black;
-//    }
-//
-//    private void UpdateBoardOrientation() {
-//        bool isWhiteAI = _whitePlayer is not HumanPlayer;
-//        bool isBlackAI = _blackPlayer is not HumanPlayer;
-//        bool isAIOnly = isWhiteAI && isBlackAI;
-//        _boardUI.SetPerspective(isWhiteBottom: !isWhiteAI || isBlackAI);
-//    }
 }
