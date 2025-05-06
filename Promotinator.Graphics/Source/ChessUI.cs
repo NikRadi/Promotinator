@@ -7,8 +7,8 @@ using Promotinator.Graphics.UI;
 namespace Promotinator.Graphics;
 
 public class ChessUI : Game {
-    private const int ScreenHeight = 720;
-    private const int ScreenWidth = 1280;
+    private const int WindowWidth = 1280;
+    private const int WindowHeight = 720;
 
     private Color BackgroundColor { get; } = new(75, 75, 75);
     private GraphicsDeviceManager _graphics;
@@ -20,8 +20,8 @@ public class ChessUI : Game {
         IsMouseVisible = true;
 
         _graphics = new(this) {
-            PreferredBackBufferHeight = ScreenHeight,
-            PreferredBackBufferWidth = ScreenWidth,
+            PreferredBackBufferWidth = WindowWidth,
+            PreferredBackBufferHeight = WindowHeight,
         };
     }
 
