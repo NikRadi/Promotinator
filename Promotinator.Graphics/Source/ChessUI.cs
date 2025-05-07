@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Promotinator.Engine.Utils;
-using Promotinator.Graphic;
 using Promotinator.Graphics.UI;
 
 namespace Promotinator.Graphics;

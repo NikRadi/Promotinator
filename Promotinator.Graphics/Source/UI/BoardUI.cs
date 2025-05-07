@@ -1,17 +1,16 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Promotinator.Graphic;
 using Promotinator.Graphics.Util;
 
 namespace Promotinator.Graphics.UI;
 
 public class BoardUI {
     public event EventHandler<Coord> OnPieceDragStarted;
-    public event EventHandler<Move> OnPieceDragEnded;
+    public event EventHandler<Move> OnPieceDragStopped;
 
-    public bool AreBlackPiecesLocked;
-    public bool AreWhitePiecesLocked;
+    public bool CanMoveBlackPieces;
+    public bool CanMoveWhitePieces;
 
     // (file, rank), (0, 0) = a1, (7, 7) = h8.
     private readonly PieceUI[,] Pieces = new PieceUI[8, 8];
@@ -37,11 +36,11 @@ public class BoardUI {
 
     public void Update() {
         if (Input.IsLeftMouseButtonDown()) {
-            HandleMouseDown();
+            HandleDragStart();
         }
 
         if (Input.IsLeftMouseButtonReleased()) {
-            HandleMouseUp();
+            HandleDragStop();
         }
 
         if (_draggedPiece != null) {
@@ -107,13 +106,19 @@ public class BoardUI {
         _lastMove[1] = to;
     }
 
+    public void ResetLastMoveHighlight() {
+        SetLastMoveHighlight(_lastMove[0], _lastMove[1], isHighlighted: false);
+        _lastMove[0] = Coord.Null;
+        _lastMove[1] = Coord.Null;
+    }
+
 
     //
     // Events
     //
 
 
-    private void HandleMouseDown() {
+    private void HandleDragStart() {
         if (!IsInBoard(Input.MousePosition)) {
             return;
         }
@@ -121,7 +126,15 @@ public class BoardUI {
         Coord coord = ToCoord(Input.MousePosition);
         var piece = Pieces[coord.File, coord.Rank];
 
-        if (piece == null || IsColorLocked(piece.Color)) {
+        if (piece == null) {
+            return;
+        }
+
+        if (piece.Color == PlayerColor.White && !CanMoveWhitePieces) {
+            return;
+        }
+
+        if (piece.Color == PlayerColor.Black && !CanMoveBlackPieces) {
             return;
         }
 
@@ -130,21 +143,23 @@ public class BoardUI {
         OnPieceDragStarted?.Invoke(this, coord);
     }
 
-    private void HandleMouseUp() {
+    private void HandleDragStop() {
         if (_draggedPiece == null) {
             return;
         }
 
+        // Reset to original position.
+        // If the piece should have a new position it will be handled by PlacePieces().
         _draggedPiece.Position = ToPosition(_draggedFrom.File, _draggedFrom.Rank);
         _draggedPiece = null;
 
         if (!IsInBoard(Input.MousePosition)) {
-            OnPieceDragEnded?.Invoke(this, Move.Null);
+            OnPieceDragStopped?.Invoke(this, Move.Null);
             return;
         }
 
         Coord draggedTo = ToCoord(Input.MousePosition);
-        OnPieceDragEnded?.Invoke(this, new(_draggedFrom, draggedTo));
+        OnPieceDragStopped?.Invoke(this, new(_draggedFrom, draggedTo));
     }
 
 
@@ -264,10 +279,6 @@ public class BoardUI {
 
     private bool IsInBoard(Vector2 position) {
         return Bounds.Contains(position);
-    }
-
-    private bool IsColorLocked(PlayerColor color) {
-        return (color == PlayerColor.White && AreWhitePiecesLocked) || (color == PlayerColor.Black && AreBlackPiecesLocked);
     }
 
     private Coord ToCoord(Vector2 position) {

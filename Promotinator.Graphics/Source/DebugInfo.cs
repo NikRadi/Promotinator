@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Promotinator.Graphic;
 
 namespace Promotinator.Graphics;
 
