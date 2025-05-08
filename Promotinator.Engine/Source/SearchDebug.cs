@@ -1,6 +1,6 @@
 namespace Promotinator.Engine;
 
-internal static class SearchDebug {
+public static class SearchDebug {
     private static string _filePath = "SearchLog.txt";
     private static object _fileLock = new();
 

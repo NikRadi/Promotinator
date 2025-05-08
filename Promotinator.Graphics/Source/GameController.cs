@@ -24,7 +24,7 @@ public class GameController {
     private List<(Engine.Move Move, Engine.BoardState State)> _history = [];
     private int _historyIndex = -1;
 
-    private bool _isPaused;
+    private bool _isPaused = true;
     private bool _isStarted;
 
     public GameController(float centerY) {
@@ -36,6 +36,8 @@ public class GameController {
 
         _whitePlayer = new AIPlayer(_board);
         _blackPlayer = new AIPlayer(_board);
+
+        Engine.SearchDebug.ClearLog();
     }
 
     public async Task Update() {
@@ -95,6 +97,9 @@ public class GameController {
 
         _whitePlayer = new AIPlayer(_board);
         _blackPlayer = new AIPlayer(_board);
+
+        _history.Clear();
+        _historyIndex = -1;
     }
 
     private void MakeMove(Engine.Move move) {
