@@ -40,7 +40,8 @@ public static class Search {
 
         bool isMaximizingPlayer = board.Turn == Color.White;
         int bestScore = isMaximizingPlayer ? int.MinValue : int.MaxValue;
-        ScoredMove result = new() { Score = bestScore, Debug = "" };
+        int cancelledMoveIndex = -1;
+        ScoredMove result = new() { Score = bestScore, Debug = "", Move = moves[0] };
         _stopwatch.Restart();
 
         if (moves.Count >= 0) {
@@ -49,24 +50,26 @@ public static class Search {
                 SearchDebug.Log($"Iterative deepening {{depth:{depth + 1} turn:{board.Turn} time:{MillisecondsLeft()}ms}}");
                 _diagnostics = new();
 
-                foreach (Move move in moves) {
+                for (int i = 0; i < moves.Count; ++i) {
+                    Move move = moves[i];
                     BoardState state = board.MakeMove(move);
                     var scoredMove = Minimax(board, depth);
                     board.UndoMove(move, state);
 
                     if (_isSearchCancelled) {
+                        cancelledMoveIndex = i;
                         break;
                     }
 
                     if (isMaximizingPlayer) {
-                        if (scoredMove.Score > bestResult.Score) {
+                        if (scoredMove.Score >= bestResult.Score) {
                             bestResult = scoredMove;
                             bestResult.Move = move;
                             bestResult.Debug = $"(Score:{scoredMove.Score}) {move}{scoredMove.Debug}";
                         }
                     }
                     else {
-                        if (scoredMove.Score < bestResult.Score) {
+                        if (scoredMove.Score <= bestResult.Score) {
                             bestResult = scoredMove;
                             bestResult.Move = move;
                             bestResult.Debug = $"(Score:{scoredMove.Score}) {move}{scoredMove.Debug}";
@@ -78,6 +81,9 @@ public static class Search {
 
                 if (!_isSearchCancelled) {
                     result = bestResult;
+                }
+                else {
+                    SearchDebug.Log($"Search cancelled (move {cancelledMoveIndex}/{moves.Count})");
                 }
 
                 SearchDebug.Log(result.Debug);
@@ -92,6 +98,9 @@ public static class Search {
         SearchDebug.Log($"Score: {result.Score}");
         SearchDebug.Log("");
         SearchDebug.Log("");
+
+        Debug.Assert(board.Pieces[result.Move.From.File, result.Move.From.Rank].HasValue, $"Invalid search result: {result.Move}");
+        Debug.Assert(board.Pieces[result.Move.From.File, result.Move.From.Rank].Value.Color == board.Turn, $"Moving invalid piece");
 
         return result.Move;
     }
@@ -138,7 +147,7 @@ public static class Search {
                 var scoredMove = Minimax(board, depth - 1);
                 board.UndoMove(move, state);
 
-                if (scoredMove.Score > result.Score) {
+                if (scoredMove.Score >= result.Score) {
                     result = scoredMove;
                     result.Move = move;
                     result.Debug = $" {move}{result.Debug}";
@@ -151,7 +160,7 @@ public static class Search {
                 var scoredMove = Minimax(board, depth - 1);
                 board.UndoMove(move, state);
 
-                if (scoredMove.Score < result.Score) {
+                if (scoredMove.Score <= result.Score) {
                     result = scoredMove;
                     result.Move = move;
                     result.Debug = $" {move}{result.Debug}";

@@ -52,9 +52,18 @@ public class GameController {
             return;
         }
 
-        _moveTask = _board.Turn == Engine.Color.White ? _whitePlayer.StartMakingMove() : _blackPlayer.StartMakingMove();
-        Engine.Move move = await _moveTask;
-        MakeMove(move);
+        try {
+            _moveTask = _board.Turn == Engine.Color.White ? _whitePlayer.StartMakingMove() : _blackPlayer.StartMakingMove();
+            Engine.Move move = await _moveTask;
+            MakeMove(move);
+        } catch (Exception e) {
+            Console.WriteLine($"Error in search - Pausing game: {e.Message}");
+            _isPaused = true;
+        }
+
+        if (_isPaused) {
+            return;
+        }
 
         var state = _board.GetState();
 

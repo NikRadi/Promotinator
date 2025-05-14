@@ -1,8 +1,13 @@
+using System.Diagnostics;
+
 namespace Promotinator.Engine;
 
 public static class MoveGenerator {
     public static List<Move> GenerateMoves(Board board) {
         List<Move> moves = GeneratePseudoLegalMoves(board);
+
+        Debug.Assert(moves.Count > 0, $"GenerateMoves: found no moves");
+        Debug.Assert(moves.All(move => board.Pieces[move.From.File, move.From.Rank].HasValue));
 
         int moveIndex = moves.FindIndex(m => m.CapturedPiece.HasValue && m.CapturedPiece.Value.Type == PieceType.King);
         if (moveIndex > 0) {
