@@ -38,6 +38,7 @@ public class Board {
         };
 
         Debug.Assert(Pieces[move.From.File, move.From.Rank].HasValue, $"Cannot move non-existing piece: {move}");
+        Debug.Assert(Pieces[move.From.File, move.From.Rank].Value.Color == Turn, $"Wrong player moving: {Turn}");
         Piece piece = Pieces[move.From.File, move.From.Rank].Value;
 
         // Update 50-move rule
@@ -280,5 +281,53 @@ public class Board {
         if (IsKingInCheck()) {
             ColorOfPlayerInCheck = Turn;
         }
+    }
+
+    public string ToFEN() {
+        string[] rows = new string[8];
+        for (int rank = 7; rank >= 0; rank--) {
+            string row = "";
+            int empty = 0;
+            for (int file = 0; file < 8; file++) {
+                Piece? piece = Pieces[file, rank];
+                if (!piece.HasValue) {
+                    empty++;
+                }
+                else {
+                    if (empty > 0) {
+                        row += empty.ToString();
+                        empty = 0;
+                    }
+                    char symbol = piece.Value.Type switch {
+                        PieceType.Pawn => 'P',
+                        PieceType.Knight => 'N',
+                        PieceType.Bishop => 'B',
+                        PieceType.Rook => 'R',
+                        PieceType.Queen => 'Q',
+                        PieceType.King => 'K',
+                        _ => '?'
+                    };
+                    row += piece.Value.Color == Color.White ? symbol : char.ToLower(symbol);
+                }
+            }
+            if (empty > 0) row += empty.ToString();
+            rows[7 - rank] = row;
+        }
+
+        string piecePlacement = string.Join("/", rows);
+        string activeColor = Turn == Color.White ? "w" : "b";
+
+        string castling = "";
+        if ((CastlingRights & CastlingRights.WhiteKingside) != 0) castling += "K";
+        if ((CastlingRights & CastlingRights.WhiteQueenside) != 0) castling += "Q";
+        if ((CastlingRights & CastlingRights.BlackKingside) != 0) castling += "k";
+        if ((CastlingRights & CastlingRights.BlackQueenside) != 0) castling += "q";
+        if (castling == "") castling = "-";
+
+        string enPassant = EnPassantSquare.HasValue
+            ? $"{(char)('a' + EnPassantSquare.Value.File)}{EnPassantSquare.Value.Rank + 1}"
+            : "-";
+
+        return $"{piecePlacement} {activeColor} {castling} {enPassant} {FiftyMoveCounter} 1";
     }
 }

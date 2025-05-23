@@ -5,6 +5,7 @@
 
 # VS Code
 .vscode/
+.editorconfig
 
 # Files built by C# compiler
 *.pdb
