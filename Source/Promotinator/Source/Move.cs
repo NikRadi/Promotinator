@@ -40,7 +40,7 @@ public struct Move : IEquatable<Move> {
     private string ToString(PromotionType type) {
         switch (type) {
             case PromotionType.Queen: return "q";
-            case PromotionType.Rook : return "r";
+            case PromotionType.Rook: return "r";
             case PromotionType.Knight: return "n";
             case PromotionType.Bishop: return "b";
             default: return string.Empty;
