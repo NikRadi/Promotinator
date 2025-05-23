@@ -31,7 +31,7 @@ public class UCIHandler {
             Console.WriteLine("readyok");
         }
         else if (cmd == "uci") {
-            Console.WriteLine("id name Promotinator");
+            Console.WriteLine("id name Promotinator v001");
             Console.WriteLine("id author Nik Radi");
             Console.WriteLine("uciok");
         }
