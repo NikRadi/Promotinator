@@ -350,16 +350,36 @@ public static class MoveGenerator {
     }
 
     private static void AddPawnPromotionMoves(List<Move> moves, Move move) {
-        move.PromotionType = PromotionType.Queen;
-        moves.Add(move);
+        moves.Add(new(Move.KnightPromotionFlag) {
+            From = move.From,
+            To = move.To,
+            IsKingsideCastling = move.IsKingsideCastling,
+            IsQueensideCastling = move.IsQueensideCastling,
+            CapturedPiece = move.CapturedPiece
+        });
 
-        move.PromotionType = PromotionType.Rook;
-        moves.Add(move);
+        moves.Add(new(Move.BishopPromotionFlag) {
+            From = move.From,
+            To = move.To,
+            IsKingsideCastling = move.IsKingsideCastling,
+            IsQueensideCastling = move.IsQueensideCastling,
+            CapturedPiece = move.CapturedPiece
+        });
 
-        move.PromotionType = PromotionType.Knight;
-        moves.Add(move);
+        moves.Add(new(Move.RookPromotionFlag) {
+            From = move.From,
+            To = move.To,
+            IsKingsideCastling = move.IsKingsideCastling,
+            IsQueensideCastling = move.IsQueensideCastling,
+            CapturedPiece = move.CapturedPiece
+        });
 
-        move.PromotionType = PromotionType.Bishop;
-        moves.Add(move);
+        moves.Add(new(Move.QueenPromotionFlag) {
+            From = move.From,
+            To = move.To,
+            IsKingsideCastling = move.IsKingsideCastling,
+            IsQueensideCastling = move.IsQueensideCastling,
+            CapturedPiece = move.CapturedPiece
+        });
     }
 }

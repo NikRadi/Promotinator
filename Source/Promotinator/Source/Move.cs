@@ -9,9 +9,17 @@ public struct Move(int flags) : IEquatable<Move> {
 
     public readonly int Flags => (_data >> FlagsOffset) & FlagsMask;
 
-    public const int EnPassantCaptureFlag = 0b0101;
+    public const int EnPassantCaptureFlag   = 0b0101;
+    public const int KnightPromotionFlag    = 0b1000;
+    public const int BishopPromotionFlag    = 0b1001;
+    public const int RookPromotionFlag      = 0b1010;
+    public const int QueenPromotionFlag     = 0b1011;
 
-    public readonly bool IsEnPassantCapture => (Flags & EnPassantCaptureFlag) == EnPassantCaptureFlag;
+    public readonly bool IsEnPassantCapture => Flags == EnPassantCaptureFlag;
+    public readonly bool IsKnightPromotion  => Flags == KnightPromotionFlag;
+    public readonly bool IsBishopPromotion  => Flags == BishopPromotionFlag;
+    public readonly bool IsRookPromotion    => Flags == RookPromotionFlag;
+    public readonly bool IsQueenPromotion   => Flags == QueenPromotionFlag;
 #pragma warning restore format
 
     public Coord From;
@@ -19,7 +27,6 @@ public struct Move(int flags) : IEquatable<Move> {
     public Piece? CapturedPiece;
     public bool IsKingsideCastling;
     public bool IsQueensideCastling;
-    public PromotionType PromotionType;
 
     public int FromIdx => Index(From.File, From.Rank);
     public int ToIdx => Index(To.File, To.Rank);
@@ -28,9 +35,10 @@ public struct Move(int flags) : IEquatable<Move> {
 
     public override string ToString() {
         string str = $"{From.ToAlgabraicNotation()}{To.ToAlgabraicNotation()}";
-        if (PromotionType != PromotionType.None) {
-            str += ToString(PromotionType);
-        }
+        if (IsKnightPromotion) str += "n";
+        else if (IsBishopPromotion) str += "b";
+        else if (IsRookPromotion) str += "r";
+        else if (IsQueenPromotion) str += "q";
 
         return str;
     }
@@ -50,17 +58,6 @@ public struct Move(int flags) : IEquatable<Move> {
             CapturedPiece.HasValue == other.CapturedPiece.HasValue &&
             IsEnPassantCapture == other.IsEnPassantCapture &&
             IsKingsideCastling == other.IsKingsideCastling &&
-            IsQueensideCastling == other.IsQueensideCastling &&
-            PromotionType == other.PromotionType;
-    }
-
-    private string ToString(PromotionType type) {
-        switch (type) {
-            case PromotionType.Queen: return "q";
-            case PromotionType.Rook: return "r";
-            case PromotionType.Knight: return "n";
-            case PromotionType.Bishop: return "b";
-            default: return string.Empty;
-        }
+            IsQueensideCastling == other.IsQueensideCastling;
     }
 }
