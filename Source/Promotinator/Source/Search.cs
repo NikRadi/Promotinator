@@ -99,8 +99,8 @@ public static class Search {
         SearchDebug.Log("");
         SearchDebug.Log("");
 
-        Debug.Assert(board.Pieces[result.Move.From.File, result.Move.From.Rank].HasValue, $"Invalid search result: {result.Move}");
-        Debug.Assert(board.Pieces[result.Move.From.File, result.Move.From.Rank].Value.Color == board.Turn, $"Moving invalid piece");
+        Debug.Assert(board.Pieces[result.Move.FromIdx].HasValue, $"Invalid search result: {result.Move}");
+        Debug.Assert(board.Pieces[result.Move.FromIdx].Value.Color == board.Turn, $"Moving invalid piece");
 
         return result.Move;
     }

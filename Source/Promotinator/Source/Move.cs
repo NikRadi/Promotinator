@@ -9,6 +9,11 @@ public struct Move : IEquatable<Move> {
     public bool IsQueensideCastling;
     public PromotionType PromotionType;
 
+    public int FromIdx => Index(From.File, From.Rank);
+    public int ToIdx => Index(To.File, To.Rank);
+
+    public static int Index(int file, int rank) => rank * 8 + file;
+
     public override string ToString() {
         string str = $"{From.ToAlgabraicNotation()}{To.ToAlgabraicNotation()}";
         if (PromotionType != PromotionType.None) {

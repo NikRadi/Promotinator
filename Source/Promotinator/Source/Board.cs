@@ -10,8 +10,7 @@ public class Board {
     public Color? ColorOfPlayerInCheck;
     public int FiftyMoveCounter;
 
-    // (file, rank), (0, 0) = a1, (7, 7) = h8.
-    public Piece?[,] Pieces = new Piece?[8, 8];
+    public Piece?[] Pieces = new Piece?[8 * 8];
 
     public Board() {
 
@@ -37,9 +36,9 @@ public class Board {
             FiftyMoveCounter = FiftyMoveCounter
         };
 
-        Debug.Assert(Pieces[move.From.File, move.From.Rank].HasValue, $"Cannot move non-existing piece: {move}");
-        Debug.Assert(Pieces[move.From.File, move.From.Rank].Value.Color == Turn, $"Wrong player moving: {Turn}");
-        Piece piece = Pieces[move.From.File, move.From.Rank].Value;
+        Debug.Assert(Pieces[move.FromIdx].HasValue, $"Cannot move non-existing piece: {move}");
+        Debug.Assert(Pieces[move.FromIdx].Value.Color == Turn, $"Wrong player moving: {Turn}");
+        Piece piece = Pieces[move.FromIdx].Value;
 
         // Update 50-move rule
         bool isPieceCaptured = move.CapturedPiece.HasValue;
@@ -103,29 +102,29 @@ public class Board {
             }
         }
 
-        Pieces[move.To.File, move.To.Rank] = Pieces[move.From.File, move.From.Rank];
-        Pieces[move.From.File, move.From.Rank] = null;
+        Pieces[move.ToIdx] = Pieces[move.FromIdx];
+        Pieces[move.FromIdx] = null;
 
         // Remove captured en passant pawn.
         if (move.IsEnPassantCapture) {
-            Pieces[move.To.File, move.From.Rank] = null;
+            Pieces[Move.Index(move.To.File, move.From.Rank)] = null;
         }
 
         // Castling
         if (move.IsKingsideCastling) {
             int rank = Turn == Color.White ? 0 : 7;
-            Pieces[5, rank] = Pieces[7, rank];
-            Pieces[7, rank] = null;
+            Pieces[Move.Index(5, rank)] = Pieces[Move.Index(7, rank)];
+            Pieces[Move.Index(7, rank)] = null;
         }
         else if (move.IsQueensideCastling) {
             int rank = Turn == Color.White ? 0 : 7;
-            Pieces[3, rank] = Pieces[0, rank];
-            Pieces[0, rank] = null;
+            Pieces[Move.Index(3, rank)] = Pieces[Move.Index(0, rank)];
+            Pieces[Move.Index(0, rank)] = null;
         }
 
         // Handle pawn promotion
         if (move.PromotionType != PromotionType.None) {
-            Piece p = Pieces[move.To.File, move.To.Rank].Value;
+            Piece p = Pieces[move.ToIdx].Value;
             switch (move.PromotionType) {
                 case PromotionType.Queen:
                     p.Type = PieceType.Queen;
@@ -141,7 +140,7 @@ public class Board {
                     break;
             }
 
-            Pieces[move.To.File, move.To.Rank] = p;
+            Pieces[move.ToIdx] = p;
         }
 
         Turn = Turn == Color.White ? Color.Black : Color.White;
@@ -152,32 +151,32 @@ public class Board {
         Turn = Turn == Color.White ? Color.Black : Color.White;
 
         // Place moved piece back
-        Pieces[move.From.File, move.From.Rank] = Pieces[move.To.File, move.To.Rank];
+        Pieces[move.FromIdx] = Pieces[move.ToIdx];
 
         if (move.IsEnPassantCapture) {
-            Pieces[move.To.File, move.From.Rank] = move.CapturedPiece;
-            Pieces[move.To.File, move.To.Rank] = null;
+            Pieces[Move.Index(move.To.File, move.From.Rank)] = move.CapturedPiece;
+            Pieces[move.ToIdx] = null;
             EnPassantSquare = new(move.To.File, move.To.Rank);
         }
         else if (move.IsKingsideCastling) {
             int rank = Turn == Color.White ? 0 : 7;
-            Pieces[7, rank] = Pieces[5, rank];
-            Pieces[5, rank] = null;
-            Pieces[move.To.File, move.To.Rank] = null;
+            Pieces[Move.Index(7, rank)] = Pieces[Move.Index(5, rank)];
+            Pieces[Move.Index(5, rank)] = null;
+            Pieces[move.ToIdx] = null;
         }
         else if (move.IsQueensideCastling) {
             int rank = Turn == Color.White ? 0 : 7;
-            Pieces[0, rank] = Pieces[3, rank];
-            Pieces[3, rank] = null;
-            Pieces[move.To.File, move.To.Rank] = null;
+            Pieces[Move.Index(0, rank)] = Pieces[Move.Index(3, rank)];
+            Pieces[Move.Index(3, rank)] = null;
+            Pieces[move.ToIdx] = null;
         }
         else {
-            Pieces[move.To.File, move.To.Rank] = move.CapturedPiece;
+            Pieces[move.ToIdx] = move.CapturedPiece;
 
             if (move.PromotionType != PromotionType.None) {
-                Piece p = Pieces[move.From.File, move.From.Rank].Value;
+                Piece p = Pieces[move.FromIdx].Value;
                 p.Type = PieceType.Pawn;
-                Pieces[move.From.File, move.From.Rank] = p;
+                Pieces[move.FromIdx] = p;
             }
         }
 
@@ -220,7 +219,7 @@ public class Board {
     private Coord FindKingCoord(Color color) {
         for (int file = 0; file < 8; ++file) {
             for (int rank = 0; rank < 8; ++rank) {
-                Piece? piece = Pieces[file, rank];
+                Piece? piece = Pieces[Move.Index(file, rank)];
                 if (piece.HasValue && piece.Value.Color == color && piece.Value.Type == PieceType.King) {
                     return new Coord(file, rank);
                 }
@@ -256,7 +255,7 @@ public class Board {
     }
 
     internal bool IsEmpty(int file, int rank) {
-        return !Pieces[file, rank].HasValue;
+        return !Pieces[Move.Index(file, rank)].HasValue;
     }
 
     internal bool Has(CastlingRights rights) {
@@ -264,11 +263,11 @@ public class Board {
     }
 
     internal bool IsEnemy(int file, int rank) {
-        return Pieces[file, rank].HasValue && Pieces[file, rank].Value.Color != Turn;
+        return Pieces[Move.Index(file, rank)].HasValue && Pieces[Move.Index(file, rank)].Value.Color != Turn;
     }
 
     internal bool IsFriendly(int file, int rank) {
-        return Pieces[file, rank].HasValue && Pieces[file, rank].Value.Color == Turn;
+        return Pieces[Move.Index(file, rank)].HasValue && Pieces[Move.Index(file, rank)].Value.Color == Turn;
     }
 
     private void Init(FENBoardState state) {
@@ -289,7 +288,7 @@ public class Board {
             string row = "";
             int empty = 0;
             for (int file = 0; file < 8; file++) {
-                Piece? piece = Pieces[file, rank];
+                Piece? piece = Pieces[Move.Index(file, rank)];
                 if (!piece.HasValue) {
                     empty++;
                 }

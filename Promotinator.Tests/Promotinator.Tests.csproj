@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Promotinator.Engine\Promotinator.Engine.csproj" />
+    <ProjectReference Include="..\Source\Promotinator\Promotinator.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,7 +7,7 @@ public static class MoveGenerator {
         List<Move> moves = GeneratePseudoLegalMoves(board);
 
         Debug.Assert(moves.Count > 0, $"GenerateMoves: found no moves");
-        Debug.Assert(moves.All(move => board.Pieces[move.From.File, move.From.Rank].HasValue));
+        Debug.Assert(moves.All(move => board.Pieces[move.FromIdx].HasValue));
 
         int moveIndex = moves.FindIndex(m => m.CapturedPiece.HasValue && m.CapturedPiece.Value.Type == PieceType.King);
         if (moveIndex > 0) {
@@ -26,7 +26,7 @@ public static class MoveGenerator {
 
         for (int file = 0; file < 8; ++file) {
             for (int rank = 0; rank < 8; ++rank) {
-                Piece? piece = board.Pieces[file, rank];
+                Piece? piece = board.Pieces[Move.Index(file, rank)];
 
                 if (piece.HasValue && piece.Value.Color == board.Turn) {
                     switch (piece.Value.Type) {
@@ -91,10 +91,10 @@ public static class MoveGenerator {
 
         // Capture left
         if (file > 0 && (board.IsEnemy(file - 1, forward) || onlyAttack)) {
-            Move move =new() {
+            Move move = new() {
                 From = new(file, rank),
                 To = new(file - 1, forward),
-                CapturedPiece = board.Pieces[file - 1, forward]
+                CapturedPiece = board.Pieces[Move.Index(file - 1, forward)]
             };
 
             if (isPromotion) {
@@ -110,7 +110,7 @@ public static class MoveGenerator {
             Move move = new() {
                 From = new(file, rank),
                 To = new(file + 1, forward),
-                CapturedPiece = board.Pieces[file + 1, forward]
+                CapturedPiece = board.Pieces[Move.Index(file + 1, forward)]
             };
 
             if (isPromotion) {
@@ -128,7 +128,7 @@ public static class MoveGenerator {
                 moves.Add(new() {
                     From = new(file, rank),
                     To = new(file - 1, forward),
-                    CapturedPiece = board.Pieces[file - 1, rank],
+                    CapturedPiece = board.Pieces[Move.Index(file - 1, rank)],
                     IsEnPassantCapture = true
                 });
             }
@@ -138,7 +138,7 @@ public static class MoveGenerator {
                 moves.Add(new() {
                     From = new(file, rank),
                     To = new(file + 1, forward),
-                    CapturedPiece = board.Pieces[file + 1, rank],
+                    CapturedPiece = board.Pieces[Move.Index(file + 1, rank)],
                     IsEnPassantCapture = true
                 });
             }
@@ -164,7 +164,7 @@ public static class MoveGenerator {
                     moves.Add(new() {
                         From = new(file, rank),
                         To = new(newFile, newRank),
-                        CapturedPiece = board.Pieces[newFile, newRank]
+                        CapturedPiece = board.Pieces[Move.Index(newFile, newRank)]
                     });
 
                     break;
@@ -200,7 +200,7 @@ public static class MoveGenerator {
                     moves.Add(new() {
                         From = new(file, rank),
                         To = new(newFile, newRank),
-                        CapturedPiece = board.Pieces[newFile, newRank]
+                        CapturedPiece = board.Pieces[Move.Index(newFile, newRank)]
                     });
                 }
             }
@@ -226,7 +226,7 @@ public static class MoveGenerator {
                     moves.Add(new() {
                         From = new(file, rank),
                         To = new(newFile, newRank),
-                        CapturedPiece = board.Pieces[newFile, newRank]
+                        CapturedPiece = board.Pieces[Move.Index(newFile, newRank)]
                     });
 
                     break;
@@ -262,7 +262,7 @@ public static class MoveGenerator {
                     moves.Add(new() {
                         From = new(file, rank),
                         To = new(newFile, newRank),
-                        CapturedPiece = board.Pieces[newFile, newRank]
+                        CapturedPiece = board.Pieces[Move.Index(newFile, newRank)]
                     });
                 }
             }
@@ -323,7 +323,7 @@ public static class MoveGenerator {
                     board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
 
                     // Check if opponent can attack square (3, 7) or (2, 7).
-                    if (!enemyMoves.Exists(move => (move.To.File == 4 ||move.To.File == 3 || move.To.File == 2) && move.To.Rank == 7)) {
+                    if (!enemyMoves.Exists(move => (move.To.File == 4 || move.To.File == 3 || move.To.File == 2) && move.To.Rank == 7)) {
                         moves.Add(new() {
                             From = new(4, 7),
                             To = new(2, 7),

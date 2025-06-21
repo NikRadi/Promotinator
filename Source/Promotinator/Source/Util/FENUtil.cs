@@ -19,8 +19,8 @@ public static class FENUtil {
         return state;
     }
 
-    private static Piece?[,] ParsePieces(string fenPieces) {
-        Piece?[,] pieces = new Piece?[8, 8];
+    private static Piece?[] ParsePieces(string fenPieces) {
+        Piece?[] pieces = new Piece?[8 * 8];
         string[] ranks = fenPieces.Split('/');
 
         for (int rank = 0; rank < 8; ++rank) {
@@ -30,7 +30,7 @@ public static class FENUtil {
                     file += int.Parse(c.ToString());
                 }
                 else {
-                    pieces[file, 7 - rank] = ParsePiece(c);
+                    pieces[Move.Index(file, 7 - rank)] = ParsePiece(c);
                     file += 1;
                 }
             }
