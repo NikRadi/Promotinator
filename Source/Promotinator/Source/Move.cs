@@ -1,10 +1,22 @@
 namespace Promotinator.Engine;
 
-public struct Move : IEquatable<Move> {
+public struct Move(int flags) : IEquatable<Move> {
+    private readonly ushort _data = (ushort)(flags << FlagsOffset);
+
+#pragma warning disable format
+    private const int FlagsMask = 0x0f;
+    private const int FlagsOffset = 12;
+
+    public readonly int Flags => (_data >> FlagsOffset) & FlagsMask;
+
+    public const int EnPassantCaptureFlag = 0b0101;
+
+    public readonly bool IsEnPassantCapture => (Flags & EnPassantCaptureFlag) == EnPassantCaptureFlag;
+#pragma warning restore format
+
     public Coord From;
     public Coord To;
     public Piece? CapturedPiece;
-    public bool IsEnPassantCapture;
     public bool IsKingsideCastling;
     public bool IsQueensideCastling;
     public PromotionType PromotionType;

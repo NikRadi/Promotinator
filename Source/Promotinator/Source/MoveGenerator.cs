@@ -125,21 +125,19 @@ public static class MoveGenerator {
         if (board.EnPassantSquare.HasValue && forward == board.EnPassantSquare.Value.Rank) {
             // Capture left
             if ((file - 1) == board.EnPassantSquare.Value.File) {
-                moves.Add(new() {
+                moves.Add(new(Move.EnPassantCaptureFlag) {
                     From = new(file, rank),
                     To = new(file - 1, forward),
                     CapturedPiece = board.Pieces[Move.Index(file - 1, rank)],
-                    IsEnPassantCapture = true
                 });
             }
 
             // Capture right
             if ((file + 1) == board.EnPassantSquare.Value.File) {
-                moves.Add(new() {
+                moves.Add(new(Move.EnPassantCaptureFlag) {
                     From = new(file, rank),
                     To = new(file + 1, forward),
                     CapturedPiece = board.Pieces[Move.Index(file + 1, rank)],
-                    IsEnPassantCapture = true
                 });
             }
         }
