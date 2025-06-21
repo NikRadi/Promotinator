@@ -31,7 +31,7 @@ public class UCIHandler {
             Console.WriteLine("readyok");
         }
         else if (cmd == "uci") {
-            Console.WriteLine("id name Promotinator v001");
+            Console.WriteLine("id name Promotinator v001.1");
             Console.WriteLine("id author Nik Radi");
             Console.WriteLine("uciok");
         }
@@ -42,17 +42,21 @@ public class UCIHandler {
             if (parts[1] == "startpos") {
                 _board = new("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
             }
+            else if (parts[1] == "fen" && parts.Length >= 7) {
+                string fen = string.Join(" ", parts.Skip(2));
+                _board = new(fen);
+            }
             else {
                 Console.WriteLine($"Unknown position command: {input}");
             }
 
-            if (parts.Length > 2) {
-                if (parts[2] == "moves") {
-                    for (int i = 3; i < parts.Length; ++i) {
-                        var moves = MoveGenerator.GenerateMoves(_board);
-                        var move = moves.Find(m => m.ToString() == parts[i]);
-                        _board.MakeMove(move);
-                    }
+            int idx = Array.FindIndex(parts, x => x == "moves");
+
+            if (idx >= 0) {
+                for (int i = idx + 1; i < parts.Length; ++i) {
+                    var moves = MoveGenerator.GenerateMoves(_board);
+                    var move = moves.Find(m => m.ToString() == parts[i]);
+                    _board.MakeMove(move);
                 }
             }
         }
