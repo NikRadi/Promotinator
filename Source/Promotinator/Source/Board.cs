@@ -51,13 +51,13 @@ public class Board {
         }
 
         // Check for en passant square
-        Coord? newEnPassantSquare = null;
-        if (piece.Type == PieceType.Pawn && Math.Abs(move.From.Rank - move.To.Rank) == 2) {
+        if (move.IsDoublePawnPush) {
             int rank = Turn == Color.White ? move.From.Rank + 1 : move.From.Rank - 1;
-            newEnPassantSquare = new(move.From.File, rank);
+            EnPassantSquare = new(move.From.File, rank);
         }
-
-        EnPassantSquare = newEnPassantSquare;
+        else {
+            EnPassantSquare = null;
+        }
 
         // Update castling rights for when king or rook moved.
         if (Turn == Color.White) {

@@ -9,6 +9,7 @@ public struct Move(int flags) : IEquatable<Move> {
 
     public readonly int Flags => (_data >> FlagsOffset) & FlagsMask;
 
+    public const int DoublePawnPushFlag     = 0b0001;
     public const int KingCastleFlag         = 0b0010;
     public const int QueenCastleFlag        = 0b0011;
     public const int EnPassantCaptureFlag   = 0b0101;
@@ -18,6 +19,7 @@ public struct Move(int flags) : IEquatable<Move> {
     public const int QueenPromotionFlag     = 0b1011;
     public const int PromotionFlag          = 0b1000;
 
+    public readonly bool IsDoublePawnPush   => Flags == DoublePawnPushFlag;
     public readonly bool IsKingCastle       => Flags == KingCastleFlag;
     public readonly bool IsQueenCastle      => Flags == QueenCastleFlag;
     public readonly bool IsEnPassantCapture => Flags == EnPassantCaptureFlag;

@@ -81,9 +81,9 @@ public static class MoveGenerator {
             }
         }
 
-        // Two squares forward
+        // Double pawn push
         if (!onlyAttack && rank == startRank && board.IsEmpty(file, forward) && board.IsEmpty(file, forward + direction)) {
-            moves.Add(new() {
+            moves.Add(new(Move.DoublePawnPushFlag) {
                 From = new(file, rank),
                 To = new(file, forward + direction)
             });
