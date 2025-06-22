@@ -123,7 +123,7 @@ public class Board {
         }
 
         // Handle pawn promotion
-        if (move.IsKnightPromotion || move.IsBishopPromotion || move.IsRookPromotion || move.IsQueenPromotion) {
+        if (move.IsPromotion) {
             Piece p = Pieces[move.ToIdx].Value;
 
             if (move.IsKnightPromotion) p.Type = PieceType.Knight;
@@ -164,7 +164,7 @@ public class Board {
         else {
             Pieces[move.ToIdx] = move.CapturedPiece;
 
-            if (move.IsKnightPromotion || move.IsBishopPromotion || move.IsKnightPromotion || move.IsQueenPromotion) {
+            if (move.IsPromotion) {
                 Piece p = Pieces[move.FromIdx].Value;
                 p.Type = PieceType.Pawn;
                 Pieces[move.FromIdx] = p;

@@ -16,6 +16,7 @@ public struct Move(int flags) : IEquatable<Move> {
     public const int BishopPromotionFlag    = 0b1001;
     public const int RookPromotionFlag      = 0b1010;
     public const int QueenPromotionFlag     = 0b1011;
+    public const int PromotionFlag          = 0b1000;
 
     public readonly bool IsKingCastle       => Flags == KingCastleFlag;
     public readonly bool IsQueenCastle      => Flags == QueenCastleFlag;
@@ -24,6 +25,7 @@ public struct Move(int flags) : IEquatable<Move> {
     public readonly bool IsBishopPromotion  => Flags == BishopPromotionFlag;
     public readonly bool IsRookPromotion    => Flags == RookPromotionFlag;
     public readonly bool IsQueenPromotion   => Flags == QueenPromotionFlag;
+    public readonly bool IsPromotion        => (Flags & QueenPromotionFlag) > 0;
 #pragma warning restore format
 
     public Coord From;
