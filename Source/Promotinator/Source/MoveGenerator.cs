@@ -92,7 +92,7 @@ public static class MoveGenerator {
 
         // Capture left
         if (file > 0 && (board.IsEnemy(file - 1, forward) || onlyAttack)) {
-            Move move = new() {
+            Move move = new(Move.CaptureFlag) {
                 From = new(file, rank),
                 To = new(file - 1, forward),
                 CapturedPiece = board.Pieces[Move.Index(file - 1, forward)]
@@ -108,7 +108,7 @@ public static class MoveGenerator {
 
         // Capture right
         if (file < 7 && (board.IsEnemy(file + 1, forward) || onlyAttack)) {
-            Move move = new() {
+            Move move = new(Move.CaptureFlag) {
                 From = new(file, rank),
                 To = new(file + 1, forward),
                 CapturedPiece = board.Pieces[Move.Index(file + 1, forward)]
@@ -160,7 +160,7 @@ public static class MoveGenerator {
                     });
                 }
                 else if (board.IsEnemy(newFile, newRank)) {
-                    moves.Add(new() {
+                    moves.Add(new(Move.CaptureFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank),
                         CapturedPiece = board.Pieces[Move.Index(newFile, newRank)]
@@ -196,7 +196,7 @@ public static class MoveGenerator {
                 }
 
                 if (board.IsEnemy(newFile, newRank)) {
-                    moves.Add(new() {
+                    moves.Add(new(Move.CaptureFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank),
                         CapturedPiece = board.Pieces[Move.Index(newFile, newRank)]
@@ -222,7 +222,7 @@ public static class MoveGenerator {
                     });
                 }
                 else if (board.IsEnemy(newFile, newRank)) {
-                    moves.Add(new() {
+                    moves.Add(new(Move.CaptureFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank),
                         CapturedPiece = board.Pieces[Move.Index(newFile, newRank)]
@@ -258,7 +258,7 @@ public static class MoveGenerator {
                 }
 
                 if (board.IsEnemy(newFile, newRank)) {
-                    moves.Add(new() {
+                    moves.Add(new(Move.CaptureFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank),
                         CapturedPiece = board.Pieces[Move.Index(newFile, newRank)]
@@ -336,7 +336,7 @@ public static class MoveGenerator {
 
         List<Move> moves = GeneratePseudoLegalMoves(board);
         foreach (Move m in moves) {
-            if (m.CapturedPiece.HasValue && m.CapturedPiece.Value.Type == PieceType.King) {
+            if (m.IsCapture && m.CapturedPiece.Value.Type == PieceType.King) {
                 isLegalMove = false;
                 break;
             }
@@ -347,25 +347,25 @@ public static class MoveGenerator {
     }
 
     private static void AddPawnPromotionMoves(List<Move> moves, Move move) {
-        moves.Add(new(Move.PromotionFlag | Move.KnightPromotionFlag) {
+        moves.Add(new(Move.PromotionFlag | Move.KnightPromotionFlag | move.Flags) {
             From = move.From,
             To = move.To,
             CapturedPiece = move.CapturedPiece
         });
 
-        moves.Add(new(Move.PromotionFlag | Move.BishopPromotionFlag) {
+        moves.Add(new(Move.PromotionFlag | Move.BishopPromotionFlag | move.Flags) {
             From = move.From,
             To = move.To,
             CapturedPiece = move.CapturedPiece
         });
 
-        moves.Add(new(Move.PromotionFlag | Move.RookPromotionFlag) {
+        moves.Add(new(Move.PromotionFlag | Move.RookPromotionFlag | move.Flags) {
             From = move.From,
             To = move.To,
             CapturedPiece = move.CapturedPiece
         });
 
-        moves.Add(new(Move.PromotionFlag | Move.QueenPromotionFlag) {
+        moves.Add(new(Move.PromotionFlag | Move.QueenPromotionFlag | move.Flags) {
             From = move.From,
             To = move.To,
             CapturedPiece = move.CapturedPiece

@@ -41,9 +41,7 @@ public class Board {
         Piece piece = Pieces[move.FromIdx].Value;
 
         // Update 50-move rule
-        bool isPieceCaptured = move.CapturedPiece.HasValue;
-        bool isPawnMoved = piece.Is(PieceType.Pawn);
-        if (!isPieceCaptured && !isPawnMoved) {
+        if (!move.IsCapture && !piece.Is(PieceType.Pawn)) {
             FiftyMoveCounter += 1;
         }
         else {
@@ -82,7 +80,7 @@ public class Board {
         }
 
         // Update castling rights for when rook killed.
-        if (move.CapturedPiece.HasValue && move.CapturedPiece.Value.Is(PieceType.Rook)) {
+        if (move.IsCapture && move.CapturedPiece.Value.Is(PieceType.Rook)) {
 
             // If we have relevant castling right then check if we need to remove it (if rook is killed).
             if ((CastlingRights & CastlingRights.WhiteQueenside) > 0 && move.To.File == 0 && move.To.Rank == 0) {

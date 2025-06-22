@@ -17,6 +17,7 @@ public struct Move(int flags) : IEquatable<Move> {
     public const int DoublePawnPushFlag     = 0b0001;
     public const int KingCastleFlag         = 0b0010;
     public const int QueenCastleFlag        = 0b0011;
+    public const int CaptureFlag            = 0b0100;
     public const int EnPassantCaptureFlag   = 0b0101;
     public const int PromotionFlag          = 0b1000;
     public const int KnightPromotionFlag    = 0b00;
@@ -27,6 +28,7 @@ public struct Move(int flags) : IEquatable<Move> {
     public readonly bool IsDoublePawnPush   => Flags == DoublePawnPushFlag;
     public readonly bool IsKingCastle       => Flags == KingCastleFlag;
     public readonly bool IsQueenCastle      => Flags == QueenCastleFlag;
+    public readonly bool IsCapture          => (Flags & CaptureFlag) != 0;
     public readonly bool IsEnPassantCapture => Flags == EnPassantCaptureFlag;
     public readonly bool IsPromotion        => (Flags & PromotionFlag) != 0;
 
@@ -48,10 +50,12 @@ public struct Move(int flags) : IEquatable<Move> {
 
     public override string ToString() {
         string str = $"{From.ToAlgabraicNotation()}{To.ToAlgabraicNotation()}";
-        if (IsKnightPromotion) str += "n";
-        else if (IsBishopPromotion) str += "b";
-        else if (IsRookPromotion) str += "r";
-        else if (IsQueenPromotion) str += "q";
+        if (IsPromotion) {
+            if (IsKnightPromotion) str += "n";
+            else if (IsBishopPromotion) str += "b";
+            else if (IsRookPromotion) str += "r";
+            else if (IsQueenPromotion) str += "q";
+        }
 
         return str;
     }
