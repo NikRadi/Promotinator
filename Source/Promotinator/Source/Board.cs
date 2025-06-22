@@ -111,12 +111,12 @@ public class Board {
         }
 
         // Castling
-        if (move.IsKingsideCastling) {
+        if (move.IsKingCastle) {
             int rank = Turn == Color.White ? 0 : 7;
             Pieces[Move.Index(5, rank)] = Pieces[Move.Index(7, rank)];
             Pieces[Move.Index(7, rank)] = null;
         }
-        else if (move.IsQueensideCastling) {
+        else if (move.IsQueenCastle) {
             int rank = Turn == Color.White ? 0 : 7;
             Pieces[Move.Index(3, rank)] = Pieces[Move.Index(0, rank)];
             Pieces[Move.Index(0, rank)] = null;
@@ -149,13 +149,13 @@ public class Board {
             Pieces[move.ToIdx] = null;
             EnPassantSquare = new(move.To.File, move.To.Rank);
         }
-        else if (move.IsKingsideCastling) {
+        else if (move.IsKingCastle) {
             int rank = Turn == Color.White ? 0 : 7;
             Pieces[Move.Index(7, rank)] = Pieces[Move.Index(5, rank)];
             Pieces[Move.Index(5, rank)] = null;
             Pieces[move.ToIdx] = null;
         }
-        else if (move.IsQueensideCastling) {
+        else if (move.IsQueenCastle) {
             int rank = Turn == Color.White ? 0 : 7;
             Pieces[Move.Index(0, rank)] = Pieces[Move.Index(3, rank)];
             Pieces[Move.Index(3, rank)] = null;

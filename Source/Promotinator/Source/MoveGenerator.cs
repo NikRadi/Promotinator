@@ -276,10 +276,9 @@ public static class MoveGenerator {
 
                     // Check if opponent can attack square (5, 0) or (6, 0).
                     if (!enemyMoves.Exists(move => (move.To.File == 4 || move.To.File == 5 || move.To.File == 6) && move.To.Rank == 0)) {
-                        moves.Add(new() {
+                        moves.Add(new(Move.KingCastleFlag) {
                             From = new(4, 0),
                             To = new(6, 0),
-                            IsKingsideCastling = true
                         });
                     }
                 }
@@ -291,10 +290,9 @@ public static class MoveGenerator {
 
                     // Check if opponent can attack square (3, 0) or (2, 0).
                     if (!enemyMoves.Exists(move => (move.To.File == 4 || move.To.File == 3 || move.To.File == 2) && move.To.Rank == 0)) {
-                        moves.Add(new() {
+                        moves.Add(new(Move.QueenCastleFlag) {
                             From = new(4, 0),
                             To = new(2, 0),
-                            IsQueensideCastling = true
                         });
                     }
                 }
@@ -307,10 +305,9 @@ public static class MoveGenerator {
 
                     // Check if opponent can attack square (5, 7) or (6, 7).
                     if (!enemyMoves.Exists(move => (move.To.File == 4 || move.To.File == 5 || move.To.File == 6) && move.To.Rank == 7)) {
-                        moves.Add(new() {
+                        moves.Add(new(Move.KingCastleFlag) {
                             From = new(4, 7),
                             To = new(6, 7),
-                            IsKingsideCastling = true
                         });
                     }
                 }
@@ -322,10 +319,9 @@ public static class MoveGenerator {
 
                     // Check if opponent can attack square (3, 7) or (2, 7).
                     if (!enemyMoves.Exists(move => (move.To.File == 4 || move.To.File == 3 || move.To.File == 2) && move.To.Rank == 7)) {
-                        moves.Add(new() {
+                        moves.Add(new(Move.QueenCastleFlag) {
                             From = new(4, 7),
                             To = new(2, 7),
-                            IsQueensideCastling = true
                         });
                     }
                 }
@@ -353,32 +349,24 @@ public static class MoveGenerator {
         moves.Add(new(Move.KnightPromotionFlag) {
             From = move.From,
             To = move.To,
-            IsKingsideCastling = move.IsKingsideCastling,
-            IsQueensideCastling = move.IsQueensideCastling,
             CapturedPiece = move.CapturedPiece
         });
 
         moves.Add(new(Move.BishopPromotionFlag) {
             From = move.From,
             To = move.To,
-            IsKingsideCastling = move.IsKingsideCastling,
-            IsQueensideCastling = move.IsQueensideCastling,
             CapturedPiece = move.CapturedPiece
         });
 
         moves.Add(new(Move.RookPromotionFlag) {
             From = move.From,
             To = move.To,
-            IsKingsideCastling = move.IsKingsideCastling,
-            IsQueensideCastling = move.IsQueensideCastling,
             CapturedPiece = move.CapturedPiece
         });
 
         moves.Add(new(Move.QueenPromotionFlag) {
             From = move.From,
             To = move.To,
-            IsKingsideCastling = move.IsKingsideCastling,
-            IsQueensideCastling = move.IsQueensideCastling,
             CapturedPiece = move.CapturedPiece
         });
     }

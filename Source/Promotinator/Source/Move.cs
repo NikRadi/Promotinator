@@ -9,12 +9,16 @@ public struct Move(int flags) : IEquatable<Move> {
 
     public readonly int Flags => (_data >> FlagsOffset) & FlagsMask;
 
+    public const int KingCastleFlag         = 0b0010;
+    public const int QueenCastleFlag        = 0b0011;
     public const int EnPassantCaptureFlag   = 0b0101;
     public const int KnightPromotionFlag    = 0b1000;
     public const int BishopPromotionFlag    = 0b1001;
     public const int RookPromotionFlag      = 0b1010;
     public const int QueenPromotionFlag     = 0b1011;
 
+    public readonly bool IsKingCastle       => Flags == KingCastleFlag;
+    public readonly bool IsQueenCastle      => Flags == QueenCastleFlag;
     public readonly bool IsEnPassantCapture => Flags == EnPassantCaptureFlag;
     public readonly bool IsKnightPromotion  => Flags == KnightPromotionFlag;
     public readonly bool IsBishopPromotion  => Flags == BishopPromotionFlag;
@@ -25,8 +29,6 @@ public struct Move(int flags) : IEquatable<Move> {
     public Coord From;
     public Coord To;
     public Piece? CapturedPiece;
-    public bool IsKingsideCastling;
-    public bool IsQueensideCastling;
 
     public int FromIdx => Index(From.File, From.Rank);
     public int ToIdx => Index(To.File, To.Rank);
@@ -56,8 +58,6 @@ public struct Move(int flags) : IEquatable<Move> {
             From == other.From &&
             To == other.To &&
             CapturedPiece.HasValue == other.CapturedPiece.HasValue &&
-            IsEnPassantCapture == other.IsEnPassantCapture &&
-            IsKingsideCastling == other.IsKingsideCastling &&
-            IsQueensideCastling == other.IsQueensideCastling;
+            _data == other._data;
     }
 }
