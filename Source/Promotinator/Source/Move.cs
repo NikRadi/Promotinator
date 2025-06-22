@@ -4,7 +4,7 @@ public struct Move(int flags) : IEquatable<Move> {
     private readonly ushort _data = (ushort)(flags << FlagsOffset);
 
 #pragma warning disable format
-    private const int FlagsMask = 0x0f;
+    private const int FlagsMask = 0b1111;
     private const int FlagsOffset = 12;
 
     public readonly int Flags => (_data >> FlagsOffset) & FlagsMask;
@@ -13,21 +13,21 @@ public struct Move(int flags) : IEquatable<Move> {
     public const int KingCastleFlag         = 0b0010;
     public const int QueenCastleFlag        = 0b0011;
     public const int EnPassantCaptureFlag   = 0b0101;
+    public const int PromotionFlag          = 0b1000;
     public const int KnightPromotionFlag    = 0b1000;
     public const int BishopPromotionFlag    = 0b1001;
     public const int RookPromotionFlag      = 0b1010;
     public const int QueenPromotionFlag     = 0b1011;
-    public const int PromotionFlag          = 0b1000;
 
     public readonly bool IsDoublePawnPush   => Flags == DoublePawnPushFlag;
     public readonly bool IsKingCastle       => Flags == KingCastleFlag;
     public readonly bool IsQueenCastle      => Flags == QueenCastleFlag;
     public readonly bool IsEnPassantCapture => Flags == EnPassantCaptureFlag;
+    public readonly bool IsPromotion        => (Flags & PromotionFlag) != 0;
     public readonly bool IsKnightPromotion  => Flags == KnightPromotionFlag;
     public readonly bool IsBishopPromotion  => Flags == BishopPromotionFlag;
     public readonly bool IsRookPromotion    => Flags == RookPromotionFlag;
     public readonly bool IsQueenPromotion   => Flags == QueenPromotionFlag;
-    public readonly bool IsPromotion        => (Flags & QueenPromotionFlag) > 0;
 #pragma warning restore format
 
     public Coord From;
