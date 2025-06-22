@@ -61,6 +61,7 @@ public static class MoveGenerator {
     }
 
     private static void GeneratePawnMoves(Board board, List<Move> moves, int file, int rank, bool onlyAttack = false) {
+        Debug.Assert(0 < rank && rank < 7);
         int startRank = board.Turn == Color.White ? 1 : 6;
         int direction = board.Turn == Color.White ? 1 : -1;
         int forward = rank + direction;
@@ -346,25 +347,25 @@ public static class MoveGenerator {
     }
 
     private static void AddPawnPromotionMoves(List<Move> moves, Move move) {
-        moves.Add(new(Move.KnightPromotionFlag) {
+        moves.Add(new(Move.PromotionFlag | Move.KnightPromotionFlag) {
             From = move.From,
             To = move.To,
             CapturedPiece = move.CapturedPiece
         });
 
-        moves.Add(new(Move.BishopPromotionFlag) {
+        moves.Add(new(Move.PromotionFlag | Move.BishopPromotionFlag) {
             From = move.From,
             To = move.To,
             CapturedPiece = move.CapturedPiece
         });
 
-        moves.Add(new(Move.RookPromotionFlag) {
+        moves.Add(new(Move.PromotionFlag | Move.RookPromotionFlag) {
             From = move.From,
             To = move.To,
             CapturedPiece = move.CapturedPiece
         });
 
-        moves.Add(new(Move.QueenPromotionFlag) {
+        moves.Add(new(Move.PromotionFlag | Move.QueenPromotionFlag) {
             From = move.From,
             To = move.To,
             CapturedPiece = move.CapturedPiece

@@ -5,29 +5,36 @@ public struct Move(int flags) : IEquatable<Move> {
 
 #pragma warning disable format
     private const int FlagsMask = 0b1111;
+    private const int PromotionFlagsMask = 0b0011;
     private const int FlagsOffset = 12;
 
+    // 1111 0000 0000 0000
     public readonly int Flags => (_data >> FlagsOffset) & FlagsMask;
+
+    // 0011 0000 0000 0000
+    public readonly int PromotionFlags => (_data >> FlagsOffset) & PromotionFlagsMask;
 
     public const int DoublePawnPushFlag     = 0b0001;
     public const int KingCastleFlag         = 0b0010;
     public const int QueenCastleFlag        = 0b0011;
     public const int EnPassantCaptureFlag   = 0b0101;
     public const int PromotionFlag          = 0b1000;
-    public const int KnightPromotionFlag    = 0b1000;
-    public const int BishopPromotionFlag    = 0b1001;
-    public const int RookPromotionFlag      = 0b1010;
-    public const int QueenPromotionFlag     = 0b1011;
+    public const int KnightPromotionFlag    = 0b00;
+    public const int BishopPromotionFlag    = 0b01;
+    public const int RookPromotionFlag      = 0b10;
+    public const int QueenPromotionFlag     = 0b11;
 
     public readonly bool IsDoublePawnPush   => Flags == DoublePawnPushFlag;
     public readonly bool IsKingCastle       => Flags == KingCastleFlag;
     public readonly bool IsQueenCastle      => Flags == QueenCastleFlag;
     public readonly bool IsEnPassantCapture => Flags == EnPassantCaptureFlag;
     public readonly bool IsPromotion        => (Flags & PromotionFlag) != 0;
-    public readonly bool IsKnightPromotion  => Flags == KnightPromotionFlag;
-    public readonly bool IsBishopPromotion  => Flags == BishopPromotionFlag;
-    public readonly bool IsRookPromotion    => Flags == RookPromotionFlag;
-    public readonly bool IsQueenPromotion   => Flags == QueenPromotionFlag;
+
+    // Remember to check `IsPromotion` before using these.
+    public readonly bool IsKnightPromotion => PromotionFlags == KnightPromotionFlag;
+    public readonly bool IsBishopPromotion  => PromotionFlags == BishopPromotionFlag;
+    public readonly bool IsRookPromotion    => PromotionFlags == RookPromotionFlag;
+    public readonly bool IsQueenPromotion   => PromotionFlags == QueenPromotionFlag;
 #pragma warning restore format
 
     public Coord From;

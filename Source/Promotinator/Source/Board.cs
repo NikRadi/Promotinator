@@ -130,6 +130,7 @@ public class Board {
             else if (move.IsBishopPromotion) p.Type = PieceType.Bishop;
             else if (move.IsRookPromotion) p.Type = PieceType.Rook;
             else if (move.IsQueenPromotion) p.Type = PieceType.Queen;
+            else Debug.Assert(false);
 
             Pieces[move.ToIdx] = p;
         }
