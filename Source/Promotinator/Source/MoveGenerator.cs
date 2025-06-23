@@ -69,7 +69,7 @@ public static class MoveGenerator {
 
         // One square forward
         if (!onlyAttack && board.IsEmpty(file, forward)) {
-            Move move = new() {
+            Move move = new(Move.QuietMoveFlag) {
                 From = new(file, rank),
                 To = new(file, forward)
             };
@@ -154,7 +154,7 @@ public static class MoveGenerator {
 
             while (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
                 if (board.IsEmpty(newFile, newRank)) {
-                    moves.Add(new() {
+                    moves.Add(new(Move.QuietMoveFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank)
                     });
@@ -189,7 +189,7 @@ public static class MoveGenerator {
 
             if (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
                 if (board.IsEmpty(newFile, newRank)) {
-                    moves.Add(new() {
+                    moves.Add(new(Move.QuietMoveFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank),
                     });
@@ -216,7 +216,7 @@ public static class MoveGenerator {
 
             while (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
                 if (board.IsEmpty(newFile, newRank)) {
-                    moves.Add(new() {
+                    moves.Add(new(Move.QuietMoveFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank)
                     });
@@ -251,7 +251,7 @@ public static class MoveGenerator {
 
             if (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
                 if (!onlyAttack && board.IsEmpty(newFile, newRank)) {
-                    moves.Add(new() {
+                    moves.Add(new(Move.QuietMoveFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank),
                     });

@@ -103,34 +103,36 @@ public class Board {
         Pieces[move.ToIdx] = Pieces[move.FromIdx];
         Pieces[move.FromIdx] = null;
 
-        // Remove captured en passant pawn.
-        if (move.IsEnPassantCapture) {
-            Pieces[Move.Index(move.To.File, move.From.Rank)] = null;
-        }
+        if (!move.IsQuietMove) {
+            // Remove captured en passant pawn.
+            if (move.IsEnPassantCapture) {
+                Pieces[Move.Index(move.To.File, move.From.Rank)] = null;
+            }
 
-        // Castling
-        if (move.IsKingCastle) {
-            int rank = Turn == Color.White ? 0 : 7;
-            Pieces[Move.Index(5, rank)] = Pieces[Move.Index(7, rank)];
-            Pieces[Move.Index(7, rank)] = null;
-        }
-        else if (move.IsQueenCastle) {
-            int rank = Turn == Color.White ? 0 : 7;
-            Pieces[Move.Index(3, rank)] = Pieces[Move.Index(0, rank)];
-            Pieces[Move.Index(0, rank)] = null;
-        }
+            // Castling
+            if (move.IsKingCastle) {
+                int rank = Turn == Color.White ? 0 : 7;
+                Pieces[Move.Index(5, rank)] = Pieces[Move.Index(7, rank)];
+                Pieces[Move.Index(7, rank)] = null;
+            }
+            else if (move.IsQueenCastle) {
+                int rank = Turn == Color.White ? 0 : 7;
+                Pieces[Move.Index(3, rank)] = Pieces[Move.Index(0, rank)];
+                Pieces[Move.Index(0, rank)] = null;
+            }
 
-        // Handle pawn promotion
-        if (move.IsPromotion) {
-            Piece p = Pieces[move.ToIdx].Value;
+            // Handle pawn promotion
+            if (move.IsPromotion) {
+                Piece p = Pieces[move.ToIdx].Value;
 
-            if (move.IsKnightPromotion) p.Type = PieceType.Knight;
-            else if (move.IsBishopPromotion) p.Type = PieceType.Bishop;
-            else if (move.IsRookPromotion) p.Type = PieceType.Rook;
-            else if (move.IsQueenPromotion) p.Type = PieceType.Queen;
-            else Debug.Assert(false);
+                if (move.IsKnightPromotion) p.Type = PieceType.Knight;
+                else if (move.IsBishopPromotion) p.Type = PieceType.Bishop;
+                else if (move.IsRookPromotion) p.Type = PieceType.Rook;
+                else if (move.IsQueenPromotion) p.Type = PieceType.Queen;
+                else Debug.Assert(false);
 
-            Pieces[move.ToIdx] = p;
+                Pieces[move.ToIdx] = p;
+            }
         }
 
         Turn = Turn == Color.White ? Color.Black : Color.White;
