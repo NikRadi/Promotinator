@@ -1,6 +1,13 @@
 namespace Promotinator.Engine;
 
 public struct Move(int flags) : IEquatable<Move> {
+    // https://www.chessprogramming.org/Encoding_Moves
+    // An ushort is 16 bits. We encode a move using bit fields:
+    // ---------------------------------------------
+    // Bits                     Description
+    // ---------------------------------------------
+    // 1111 0000 0000 0000      Flags       (4 bits)
+    // ---------------------------------------------
     private readonly ushort _data = (ushort)(flags << FlagsOffset);
 
 #pragma warning disable format
@@ -33,7 +40,7 @@ public struct Move(int flags) : IEquatable<Move> {
     public readonly bool IsPromotion        => (Flags & PromotionFlag) != 0;
 
     // Remember to check `IsPromotion` before using these.
-    public readonly bool IsKnightPromotion => PromotionFlags == KnightPromotionFlag;
+    public readonly bool IsKnightPromotion  => PromotionFlags == KnightPromotionFlag;
     public readonly bool IsBishopPromotion  => PromotionFlags == BishopPromotionFlag;
     public readonly bool IsRookPromotion    => PromotionFlags == RookPromotionFlag;
     public readonly bool IsQueenPromotion   => PromotionFlags == QueenPromotionFlag;
