@@ -36,9 +36,9 @@ public class Board {
             FiftyMoveCounter = FiftyMoveCounter
         };
 
-        Debug.Assert(Pieces[move.FromIdx].HasValue, $"Cannot move non-existing piece: {move}");
-        Debug.Assert(Pieces[move.FromIdx].Value.Color == Turn, $"Wrong player moving: {Turn}");
-        Piece piece = Pieces[move.FromIdx].Value;
+        Debug.Assert(Pieces[move.FromSquare].HasValue, $"Cannot move non-existing piece: {move}");
+        Debug.Assert(Pieces[move.FromSquare].Value.Color == Turn, $"Wrong player moving: {Turn}");
+        Piece piece = Pieces[move.FromSquare].Value;
 
         // Update 50-move rule
         if (!move.IsCapture && !piece.Is(PieceType.Pawn)) {
@@ -100,8 +100,8 @@ public class Board {
             }
         }
 
-        Pieces[move.ToIdx] = Pieces[move.FromIdx];
-        Pieces[move.FromIdx] = null;
+        Pieces[move.ToSquare] = Pieces[move.FromSquare];
+        Pieces[move.FromSquare] = null;
 
         if (!move.IsQuietMove) {
             // Remove captured en passant pawn.
@@ -143,32 +143,32 @@ public class Board {
         Turn = Turn == Color.White ? Color.Black : Color.White;
 
         // Place moved piece back
-        Pieces[move.FromIdx] = Pieces[move.ToIdx];
+        Pieces[move.FromSquare] = Pieces[move.ToSquare];
 
         if (move.IsEnPassantCapture) {
             Pieces[Move.Index(move.To.File, move.From.Rank)] = move.CapturedPiece;
-            Pieces[move.ToIdx] = null;
+            Pieces[move.ToSquare] = null;
             EnPassantSquare = new(move.To.File, move.To.Rank);
         }
         else if (move.IsKingCastle) {
             int rank = Turn == Color.White ? 0 : 7;
             Pieces[Move.Index(7, rank)] = Pieces[Move.Index(5, rank)];
             Pieces[Move.Index(5, rank)] = null;
-            Pieces[move.ToIdx] = null;
+            Pieces[move.ToSquare] = null;
         }
         else if (move.IsQueenCastle) {
             int rank = Turn == Color.White ? 0 : 7;
             Pieces[Move.Index(0, rank)] = Pieces[Move.Index(3, rank)];
             Pieces[Move.Index(3, rank)] = null;
-            Pieces[move.ToIdx] = null;
+            Pieces[move.ToSquare] = null;
         }
         else {
-            Pieces[move.ToIdx] = move.CapturedPiece;
+            Pieces[move.ToSquare] = move.CapturedPiece;
 
             if (move.IsPromotion) {
-                Piece p = Pieces[move.FromIdx].Value;
+                Piece p = Pieces[move.FromSquare].Value;
                 p.Type = PieceType.Pawn;
-                Pieces[move.FromIdx] = p;
+                Pieces[move.FromSquare] = p;
             }
         }
 

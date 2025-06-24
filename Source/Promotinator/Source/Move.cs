@@ -55,11 +55,17 @@ public struct Move(int from, int to, int flags) : IEquatable<Move> {
     public readonly bool IsQueenPromotion   => PromotionFlags == QueenPromotionFlag;
 #pragma warning restore format
 
+    [Obsolete]
     public Coord From;
+
+    [Obsolete]
     public Coord To;
     public Piece? CapturedPiece;
 
+    [Obsolete]
     public int FromIdx => Index(From.File, From.Rank);
+
+    [Obsolete]
     public int ToIdx => Index(To.File, To.Rank);
 
     public static int Index(int file, int rank) => rank * 8 + file;
