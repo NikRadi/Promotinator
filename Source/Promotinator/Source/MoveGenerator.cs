@@ -69,7 +69,9 @@ public static class MoveGenerator {
 
         // One square forward
         if (!onlyAttack && board.IsEmpty(file, forward)) {
-            Move move = new(Move.QuietMoveFlag) {
+            int from = Move.Index(file, rank);
+            int to = Move.Index(file, forward);
+            Move move = new(from, to, Move.QuietMoveFlag) {
                 From = new(file, rank),
                 To = new(file, forward)
             };
@@ -84,7 +86,9 @@ public static class MoveGenerator {
 
         // Double pawn push
         if (!onlyAttack && rank == startRank && board.IsEmpty(file, forward) && board.IsEmpty(file, forward + direction)) {
-            moves.Add(new(Move.DoublePawnPushFlag) {
+            int from = Move.Index(file, rank);
+            int to = Move.Index(file, forward + direction);
+            moves.Add(new(from, to, Move.DoublePawnPushFlag) {
                 From = new(file, rank),
                 To = new(file, forward + direction)
             });
@@ -92,7 +96,9 @@ public static class MoveGenerator {
 
         // Capture left
         if (file > 0 && (board.IsEnemy(file - 1, forward) || onlyAttack)) {
-            Move move = new(Move.CaptureFlag) {
+            int from = Move.Index(file, rank);
+            int to = Move.Index(file - 1, forward);
+            Move move = new(from, to, Move.CaptureFlag) {
                 From = new(file, rank),
                 To = new(file - 1, forward),
                 CapturedPiece = board.Pieces[Move.Index(file - 1, forward)]
@@ -108,7 +114,9 @@ public static class MoveGenerator {
 
         // Capture right
         if (file < 7 && (board.IsEnemy(file + 1, forward) || onlyAttack)) {
-            Move move = new(Move.CaptureFlag) {
+            int from = Move.Index(file, rank);
+            int to = Move.Index(file + 1, forward);
+            Move move = new(from, to, Move.CaptureFlag) {
                 From = new(file, rank),
                 To = new(file + 1, forward),
                 CapturedPiece = board.Pieces[Move.Index(file + 1, forward)]
@@ -126,7 +134,9 @@ public static class MoveGenerator {
         if (board.EnPassantSquare.HasValue && forward == board.EnPassantSquare.Value.Rank) {
             // Capture left
             if ((file - 1) == board.EnPassantSquare.Value.File) {
-                moves.Add(new(Move.EnPassantCaptureFlag) {
+                int from = Move.Index(file, rank);
+                int to = Move.Index(file - 1, forward);
+                moves.Add(new(from, to, Move.EnPassantCaptureFlag) {
                     From = new(file, rank),
                     To = new(file - 1, forward),
                     CapturedPiece = board.Pieces[Move.Index(file - 1, rank)],
@@ -135,7 +145,9 @@ public static class MoveGenerator {
 
             // Capture right
             if ((file + 1) == board.EnPassantSquare.Value.File) {
-                moves.Add(new(Move.EnPassantCaptureFlag) {
+                int from = Move.Index(file, rank);
+                int to = Move.Index(file + 1, forward);
+                moves.Add(new(from, to, Move.EnPassantCaptureFlag) {
                     From = new(file, rank),
                     To = new(file + 1, forward),
                     CapturedPiece = board.Pieces[Move.Index(file + 1, rank)],
@@ -154,13 +166,17 @@ public static class MoveGenerator {
 
             while (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
                 if (board.IsEmpty(newFile, newRank)) {
-                    moves.Add(new(Move.QuietMoveFlag) {
+                    int from = Move.Index(file, rank);
+                    int to = Move.Index(newFile, newRank);
+                    moves.Add(new(from, to, Move.QuietMoveFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank)
                     });
                 }
                 else if (board.IsEnemy(newFile, newRank)) {
-                    moves.Add(new(Move.CaptureFlag) {
+                    int from = Move.Index(file, rank);
+                    int to = Move.Index(newFile, newRank);
+                    moves.Add(new(from, to, Move.CaptureFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank),
                         CapturedPiece = board.Pieces[Move.Index(newFile, newRank)]
@@ -189,14 +205,18 @@ public static class MoveGenerator {
 
             if (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
                 if (board.IsEmpty(newFile, newRank)) {
-                    moves.Add(new(Move.QuietMoveFlag) {
+                    int from = Move.Index(file, rank);
+                    int to = Move.Index(newFile, newRank);
+                    moves.Add(new(from, to, Move.QuietMoveFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank),
                     });
                 }
 
                 if (board.IsEnemy(newFile, newRank)) {
-                    moves.Add(new(Move.CaptureFlag) {
+                    int from = Move.Index(file, rank);
+                    int to = Move.Index(newFile, newRank);
+                    moves.Add(new(from, to, Move.CaptureFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank),
                         CapturedPiece = board.Pieces[Move.Index(newFile, newRank)]
@@ -216,13 +236,17 @@ public static class MoveGenerator {
 
             while (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
                 if (board.IsEmpty(newFile, newRank)) {
-                    moves.Add(new(Move.QuietMoveFlag) {
+                    int from = Move.Index(file, rank);
+                    int to = Move.Index(newFile, newRank);
+                    moves.Add(new(from, to, Move.QuietMoveFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank)
                     });
                 }
                 else if (board.IsEnemy(newFile, newRank)) {
-                    moves.Add(new(Move.CaptureFlag) {
+                    int from = Move.Index(file, rank);
+                    int to = Move.Index(newFile, newRank);
+                    moves.Add(new(from, to, Move.CaptureFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank),
                         CapturedPiece = board.Pieces[Move.Index(newFile, newRank)]
@@ -251,14 +275,18 @@ public static class MoveGenerator {
 
             if (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
                 if (!onlyAttack && board.IsEmpty(newFile, newRank)) {
-                    moves.Add(new(Move.QuietMoveFlag) {
+                    int from = Move.Index(file, rank);
+                    int to = Move.Index(newFile, newRank);
+                    moves.Add(new(from, to, Move.QuietMoveFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank),
                     });
                 }
 
                 if (board.IsEnemy(newFile, newRank)) {
-                    moves.Add(new(Move.CaptureFlag) {
+                    int from = Move.Index(file, rank);
+                    int to = Move.Index(newFile, newRank);
+                    moves.Add(new(from, to, Move.CaptureFlag) {
                         From = new(file, rank),
                         To = new(newFile, newRank),
                         CapturedPiece = board.Pieces[Move.Index(newFile, newRank)]
@@ -277,7 +305,9 @@ public static class MoveGenerator {
 
                     // Check if opponent can attack square (5, 0) or (6, 0).
                     if (!enemyMoves.Exists(move => (move.To.File == 4 || move.To.File == 5 || move.To.File == 6) && move.To.Rank == 0)) {
-                        moves.Add(new(Move.KingCastleFlag) {
+                        int from = Move.Index(4, 0);
+                        int to = Move.Index(6, 0);
+                        moves.Add(new(from, to, Move.KingCastleFlag) {
                             From = new(4, 0),
                             To = new(6, 0),
                         });
@@ -291,7 +321,9 @@ public static class MoveGenerator {
 
                     // Check if opponent can attack square (3, 0) or (2, 0).
                     if (!enemyMoves.Exists(move => (move.To.File == 4 || move.To.File == 3 || move.To.File == 2) && move.To.Rank == 0)) {
-                        moves.Add(new(Move.QueenCastleFlag) {
+                        int from = Move.Index(4, 0);
+                        int to = Move.Index(2, 0);
+                        moves.Add(new(from, to, Move.QueenCastleFlag) {
                             From = new(4, 0),
                             To = new(2, 0),
                         });
@@ -306,7 +338,9 @@ public static class MoveGenerator {
 
                     // Check if opponent can attack square (5, 7) or (6, 7).
                     if (!enemyMoves.Exists(move => (move.To.File == 4 || move.To.File == 5 || move.To.File == 6) && move.To.Rank == 7)) {
-                        moves.Add(new(Move.KingCastleFlag) {
+                        int from = Move.Index(4, 7);
+                        int to = Move.Index(6, 7);
+                        moves.Add(new(from, to, Move.KingCastleFlag) {
                             From = new(4, 7),
                             To = new(6, 7),
                         });
@@ -320,7 +354,9 @@ public static class MoveGenerator {
 
                     // Check if opponent can attack square (3, 7) or (2, 7).
                     if (!enemyMoves.Exists(move => (move.To.File == 4 || move.To.File == 3 || move.To.File == 2) && move.To.Rank == 7)) {
-                        moves.Add(new(Move.QueenCastleFlag) {
+                        int from = Move.Index(4, 7);
+                        int to = Move.Index(2, 7);
+                        moves.Add(new(from, to, Move.QueenCastleFlag) {
                             From = new(4, 7),
                             To = new(2, 7),
                         });
@@ -347,25 +383,25 @@ public static class MoveGenerator {
     }
 
     private static void AddPawnPromotionMoves(List<Move> moves, Move move) {
-        moves.Add(new(Move.PromotionFlag | Move.KnightPromotionFlag | move.Flags) {
+        moves.Add(new(move.FromSquare, move.ToSquare, Move.PromotionFlag | Move.KnightPromotionFlag | move.Flags) {
             From = move.From,
             To = move.To,
             CapturedPiece = move.CapturedPiece
         });
 
-        moves.Add(new(Move.PromotionFlag | Move.BishopPromotionFlag | move.Flags) {
+        moves.Add(new(move.FromSquare, move.ToSquare, Move.PromotionFlag | Move.BishopPromotionFlag | move.Flags) {
             From = move.From,
             To = move.To,
             CapturedPiece = move.CapturedPiece
         });
 
-        moves.Add(new(Move.PromotionFlag | Move.RookPromotionFlag | move.Flags) {
+        moves.Add(new(move.FromSquare, move.ToSquare, Move.PromotionFlag | Move.RookPromotionFlag | move.Flags) {
             From = move.From,
             To = move.To,
             CapturedPiece = move.CapturedPiece
         });
 
-        moves.Add(new(Move.PromotionFlag | Move.QueenPromotionFlag | move.Flags) {
+        moves.Add(new(move.FromSquare, move.ToSquare, Move.PromotionFlag | Move.QueenPromotionFlag | move.Flags) {
             From = move.From,
             To = move.To,
             CapturedPiece = move.CapturedPiece

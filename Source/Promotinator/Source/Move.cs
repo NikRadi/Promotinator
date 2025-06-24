@@ -1,25 +1,32 @@
 namespace Promotinator.Engine;
 
-public struct Move(int flags) : IEquatable<Move> {
+public struct Move(int from, int to, int flags) : IEquatable<Move> {
     // https://www.chessprogramming.org/Encoding_Moves
     // An ushort is 16 bits. We encode a move using bit fields:
     // ---------------------------------------------
     // Bits                     Description
     // ---------------------------------------------
+    // 0000 0000 0011 1111      To square   (6 bits)
+    // 0000 1111 1100 0000      From square (6 bits)
     // 1111 0000 0000 0000      Flags       (4 bits)
     // ---------------------------------------------
-    private readonly ushort _data = (ushort)(flags << FlagsOffset);
+    private readonly ushort _data = (ushort)((flags << FlagsOffset) | (from << FromSquareOffset) | (to << ToSquareOffset));
 
 #pragma warning disable format
-    private const int FlagsMask = 0b1111;
-    private const int PromotionFlagsMask = 0b0011;
-    private const int FlagsOffset = 12;
+    private const int SquareMask            = 0b1111_11;
+    private const int FlagsMask             = 0b1111;
+    private const int PromotionFlagsMask    = 0b0011;
 
-    // 1111 0000 0000 0000
-    public readonly int Flags => (_data >> FlagsOffset) & FlagsMask;
+    private const int ToSquareOffset        =  0;
+    private const int FromSquareOffset      =  6;
+    private const int FlagsOffset           = 12;
+
+    public readonly int ToSquare            => (_data >> ToSquareOffset)    & SquareMask;
+    public readonly int FromSquare          => (_data >> FromSquareOffset)  & SquareMask;
+    public readonly int Flags               => (_data >> FlagsOffset)       & FlagsMask;
 
     // 0011 0000 0000 0000
-    public readonly int PromotionFlags => (_data >> FlagsOffset) & PromotionFlagsMask;
+    public readonly int PromotionFlags      => (_data >> FlagsOffset) & PromotionFlagsMask;
 
     public const int QuietMoveFlag          = 0b0000;
     public const int DoublePawnPushFlag     = 0b0001;
