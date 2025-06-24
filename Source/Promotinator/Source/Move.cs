@@ -1,6 +1,6 @@
 namespace Promotinator.Engine;
 
-public struct Move(int from, int to, int flags) : IEquatable<Move> {
+public struct Move(int from, int to, int flags) {
     // https://www.chessprogramming.org/Encoding_Moves
     // An ushort is 16 bits. We encode a move using bit fields:
     // ---------------------------------------------
@@ -24,9 +24,7 @@ public struct Move(int from, int to, int flags) : IEquatable<Move> {
     public readonly int ToSquare            => (_data >> ToSquareOffset)    & SquareMask;
     public readonly int FromSquare          => (_data >> FromSquareOffset)  & SquareMask;
     public readonly int Flags               => (_data >> FlagsOffset)       & FlagsMask;
-
-    // 0011 0000 0000 0000
-    public readonly int PromotionFlags      => (_data >> FlagsOffset) & PromotionFlagsMask;
+    public readonly int PromotionFlags      => (_data >> FlagsOffset)       & PromotionFlagsMask;
 
     public const int QuietMoveFlag          = 0b0000;
     public const int DoublePawnPushFlag     = 0b0001;
@@ -55,23 +53,18 @@ public struct Move(int from, int to, int flags) : IEquatable<Move> {
     public readonly bool IsQueenPromotion   => PromotionFlags == QueenPromotionFlag;
 #pragma warning restore format
 
-    [Obsolete]
-    public Coord From;
-
-    [Obsolete]
-    public Coord To;
     public Piece? CapturedPiece;
 
-    [Obsolete]
-    public int FromIdx => Index(From.File, From.Rank);
-
-    [Obsolete]
-    public int ToIdx => Index(To.File, To.Rank);
-
+    public static int FileOf(int i) => i % 8;
+    public static int RankOf(int i) => i / 8;
     public static int Index(int file, int rank) => rank * 8 + file;
 
-    public override string ToString() {
-        string str = $"{From.ToAlgabraicNotation()}{To.ToAlgabraicNotation()}";
+    public override readonly string ToString() {
+        char fromFile = (char)(FileOf(FromSquare) + 'a');
+        int fromRank = RankOf(FromSquare) + 1;
+        char toFile = (char)(FileOf(ToSquare) + 'a');
+        int toRank = RankOf(ToSquare) + 1;
+        string str = $"{fromFile}{fromRank}{toFile}{toRank}";
         if (IsPromotion) {
             if (IsKnightPromotion) str += "n";
             else if (IsBishopPromotion) str += "b";
@@ -80,21 +73,5 @@ public struct Move(int from, int to, int flags) : IEquatable<Move> {
         }
 
         return str;
-    }
-
-    public override int GetHashCode() {
-        return From.GetHashCode() ^ To.GetHashCode();
-    }
-
-    public override bool Equals(object obj) {
-        return obj is Move && Equals(obj);
-    }
-
-    public bool Equals(Move other) {
-        return
-            From == other.From &&
-            To == other.To &&
-            CapturedPiece.HasValue == other.CapturedPiece.HasValue &&
-            _data == other._data;
     }
 }

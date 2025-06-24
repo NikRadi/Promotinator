@@ -20,7 +20,7 @@ public static class Eval {
                     continue;
                 }
 
-                Piece piece = board.Pieces[Move.Index(file, rank)].Value;
+                Piece piece = board.Pieces[Move.Index(file, rank)]!.Value;
                 int sign = piece.Color == Color.White ? 1 : -1;
                 score += sign * ValueOf[(int)piece.Type];
             }

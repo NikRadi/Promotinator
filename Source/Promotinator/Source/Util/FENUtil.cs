@@ -76,8 +76,10 @@ public static class FENUtil {
         }
     }
 
-    private static Coord? ParseEnPassant(string fenEnPassant) {
+    private static int? ParseEnPassant(string fenEnPassant) {
         if (fenEnPassant[0] == '-') return null;
-        return new Coord(fenEnPassant);
+        int file = fenEnPassant[0] - 'a';
+        int rank = fenEnPassant[1] - '1';
+        return Move.Index(file, rank);
     }
 }

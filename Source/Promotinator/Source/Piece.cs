@@ -4,7 +4,7 @@ public struct Piece {
     public PieceType Type;
     public Color Color;
 
-    public bool Is(PieceType type) {
+    public readonly bool Is(PieceType type) {
         return Type == type;
     }
 }

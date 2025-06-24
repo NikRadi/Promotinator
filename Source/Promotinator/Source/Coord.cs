@@ -11,11 +11,6 @@ public struct Coord : IEquatable<Coord> {
         Rank = rank;
     }
 
-    public Coord(string square) {
-        File = square[0] - 'a';
-        Rank = square[1] - '1';
-    }
-
     public string ToAlgabraicNotation() {
         char from = (char)(File + 'a');
         int to = Rank + 1;

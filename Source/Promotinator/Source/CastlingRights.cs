@@ -2,6 +2,7 @@ namespace Promotinator.Engine;
 
 [Flags]
 public enum CastlingRights {
+#pragma warning disable format
     None            = 0,
     WhiteKingside   = 1 << 0,
     WhiteQueenside  = 1 << 1,
@@ -10,4 +11,5 @@ public enum CastlingRights {
     WhiteBoth       = WhiteKingside | WhiteQueenside,
     BlackBoth       = BlackKingside | BlackQueenside,
     All             = WhiteBoth | BlackBoth
+#pragma warning restore format
 }

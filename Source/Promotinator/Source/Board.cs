@@ -6,7 +6,7 @@ namespace Promotinator.Engine;
 public class Board {
     public Color Turn;
     public CastlingRights CastlingRights;
-    public Coord? EnPassantSquare;
+    public int? EnPassantSquare;
     public Color? ColorOfPlayerInCheck;
     public int FiftyMoveCounter;
 
@@ -37,8 +37,8 @@ public class Board {
         };
 
         Debug.Assert(Pieces[move.FromSquare].HasValue, $"Cannot move non-existing piece: {move}");
-        Debug.Assert(Pieces[move.FromSquare].Value.Color == Turn, $"Wrong player moving: {Turn}");
-        Piece piece = Pieces[move.FromSquare].Value;
+        Debug.Assert(Pieces[move.FromSquare]!.Value.Color == Turn, $"Wrong player moving: {Turn}");
+        Piece piece = Pieces[move.FromSquare]!.Value;
 
         // Update 50-move rule
         if (!move.IsCapture && !piece.Is(PieceType.Pawn)) {
@@ -50,8 +50,9 @@ public class Board {
 
         // Check for en passant square
         if (move.IsDoublePawnPush) {
-            int rank = Turn == Color.White ? move.From.Rank + 1 : move.From.Rank - 1;
-            EnPassantSquare = new(move.From.File, rank);
+            int square = move.FromSquare;
+            square += Turn == Color.White ? 8 : -8;
+            EnPassantSquare = square;
         }
         else {
             EnPassantSquare = null;
@@ -63,9 +64,9 @@ public class Board {
                 CastlingRights &= ~CastlingRights.WhiteBoth;
             }
 
-            if (piece.Is(PieceType.Rook) && move.From.Rank == 0) {
-                if (move.From.File == 0) CastlingRights &= ~CastlingRights.WhiteQueenside;
-                if (move.From.File == 7) CastlingRights &= ~CastlingRights.WhiteKingside;
+            if (piece.Is(PieceType.Rook) && Move.RankOf(move.FromSquare) == 0) {
+                if (Move.FileOf(move.FromSquare) == 0) CastlingRights &= ~CastlingRights.WhiteQueenside;
+                if (Move.FileOf(move.FromSquare) == 7) CastlingRights &= ~CastlingRights.WhiteKingside;
             }
         }
         else {
@@ -73,29 +74,29 @@ public class Board {
                 CastlingRights &= ~CastlingRights.BlackBoth;
             }
 
-            if (piece.Is(PieceType.Rook) && move.From.Rank == 7) {
-                if (move.From.File == 0) CastlingRights &= ~CastlingRights.BlackQueenside;
-                if (move.From.File == 7) CastlingRights &= ~CastlingRights.BlackKingside;
+            if (piece.Is(PieceType.Rook) && Move.RankOf(move.FromSquare) == 7) {
+                if (Move.FileOf(move.FromSquare) == 0) CastlingRights &= ~CastlingRights.BlackQueenside;
+                if (Move.FileOf(move.FromSquare) == 7) CastlingRights &= ~CastlingRights.BlackKingside;
             }
         }
 
         // Update castling rights for when rook killed.
-        if (move.IsCapture && move.CapturedPiece.Value.Is(PieceType.Rook)) {
+        if (move.IsCapture && move.CapturedPiece!.Value.Is(PieceType.Rook)) {
 
             // If we have relevant castling right then check if we need to remove it (if rook is killed).
-            if ((CastlingRights & CastlingRights.WhiteQueenside) > 0 && move.To.File == 0 && move.To.Rank == 0) {
+            if (Has(CastlingRights.WhiteQueenside) && Move.FileOf(move.ToSquare) == 0 && Move.RankOf(move.ToSquare) == 0) {
                 CastlingRights &= ~CastlingRights.WhiteQueenside;
             }
 
-            if ((CastlingRights & CastlingRights.WhiteKingside) > 0 && move.To.File == 7 && move.To.Rank == 0) {
+            if (Has(CastlingRights.WhiteKingside) && Move.FileOf(move.ToSquare) == 7 && Move.RankOf(move.ToSquare) == 0) {
                 CastlingRights &= ~CastlingRights.WhiteKingside;
             }
 
-            if ((CastlingRights & CastlingRights.BlackQueenside) > 0 && move.To.File == 0 && move.To.Rank == 7) {
+            if (Has(CastlingRights.BlackQueenside) && Move.FileOf(move.ToSquare) == 0 && Move.RankOf(move.ToSquare) == 7) {
                 CastlingRights &= ~CastlingRights.BlackQueenside;
             }
 
-            if ((CastlingRights & CastlingRights.BlackKingside) > 0 && move.To.File == 7 && move.To.Rank == 7) {
+            if (Has(CastlingRights.BlackKingside) && Move.FileOf(move.ToSquare) == 7 && Move.RankOf(move.ToSquare) == 7) {
                 CastlingRights &= ~CastlingRights.BlackKingside;
             }
         }
@@ -106,7 +107,10 @@ public class Board {
         if (!move.IsQuietMove) {
             // Remove captured en passant pawn.
             if (move.IsEnPassantCapture) {
-                Pieces[Move.Index(move.To.File, move.From.Rank)] = null;
+                int file = Move.FileOf(move.ToSquare);
+                int rank = Move.RankOf(move.FromSquare);
+                int index = Move.Index(file, rank);
+                Pieces[index] = null;
             }
 
             // Castling
@@ -123,7 +127,7 @@ public class Board {
 
             // Handle pawn promotion
             if (move.IsPromotion) {
-                Piece p = Pieces[move.ToIdx].Value;
+                Piece p = Pieces[move.ToSquare]!.Value;
 
                 if (move.IsKnightPromotion) p.Type = PieceType.Knight;
                 else if (move.IsBishopPromotion) p.Type = PieceType.Bishop;
@@ -131,7 +135,7 @@ public class Board {
                 else if (move.IsQueenPromotion) p.Type = PieceType.Queen;
                 else Debug.Assert(false);
 
-                Pieces[move.ToIdx] = p;
+                Pieces[move.ToSquare] = p;
             }
         }
 
@@ -146,9 +150,12 @@ public class Board {
         Pieces[move.FromSquare] = Pieces[move.ToSquare];
 
         if (move.IsEnPassantCapture) {
-            Pieces[Move.Index(move.To.File, move.From.Rank)] = move.CapturedPiece;
+            int file = Move.FileOf(move.ToSquare);
+            int rank = Move.RankOf(move.FromSquare);
+            int index = Move.Index(file, rank);
+            Pieces[index] = move.CapturedPiece;
             Pieces[move.ToSquare] = null;
-            EnPassantSquare = new(move.To.File, move.To.Rank);
+            EnPassantSquare = move.ToSquare;
         }
         else if (move.IsKingCastle) {
             int rank = Turn == Color.White ? 0 : 7;
@@ -166,7 +173,7 @@ public class Board {
             Pieces[move.ToSquare] = move.CapturedPiece;
 
             if (move.IsPromotion) {
-                Piece p = Pieces[move.FromSquare].Value;
+                Piece p = Pieces[move.FromSquare]!.Value;
                 p.Type = PieceType.Pawn;
                 Pieces[move.FromSquare] = p;
             }
@@ -204,31 +211,47 @@ public class Board {
     }
 
     public bool IsKingInCheck() {
-        Coord kingCoord = FindKingCoord(Turn);
-        return IsSquareAttacked(kingCoord);
+        int kingSquare = FindKingSquare(Turn);
+        return IsSquareAttacked(kingSquare);
     }
 
-    private Coord FindKingCoord(Color color) {
-        for (int file = 0; file < 8; ++file) {
-            for (int rank = 0; rank < 8; ++rank) {
-                Piece? piece = Pieces[Move.Index(file, rank)];
-                if (piece.HasValue && piece.Value.Color == color && piece.Value.Type == PieceType.King) {
-                    return new Coord(file, rank);
-                }
+    public bool IsEmpty(int file, int rank) {
+        return !Pieces[Move.Index(file, rank)].HasValue;
+    }
+
+    public bool Has(CastlingRights rights) {
+        return (CastlingRights & rights) != 0;
+    }
+
+    public bool IsEnemy(int square) {
+        return Pieces[square].HasValue && Pieces[square]!.Value.Color != Turn;
+    }
+
+    public bool IsFriendly(int square) {
+        return Pieces[square].HasValue && Pieces[square]!.Value.Color == Turn;
+    }
+
+    private int FindKingSquare(Color color) {
+        for (int i = 0; i < 64; ++i) {
+            Piece? piece = Pieces[i];
+            if (piece.HasValue && piece.Value.Color == color && piece.Value.Type == PieceType.King) {
+                return i;
             }
         }
+
         // Should never happen in a valid game.
-        return new Coord(-1, -1);
+        Debug.Assert(false);
+        return -1;
     }
 
-    private bool IsSquareAttacked(Coord coord) {
+    private bool IsSquareAttacked(int square) {
         Color opponent = Turn == Color.White ? Color.Black : Color.White;
         Turn = opponent;
 
         List<Move> attackingMoves = MoveGenerator.GeneratePseudoLegalMoves(this, onlyAttack: true);
 
         foreach (Move move in attackingMoves) {
-            if (move.To == coord) {
+            if (move.ToSquare == square) {
                 Turn = opponent == Color.White ? Color.Black : Color.White;
                 return true;
             }
@@ -244,22 +267,6 @@ public class Board {
 
     private bool IsDeadPosition() {
         return false;
-    }
-
-    internal bool IsEmpty(int file, int rank) {
-        return !Pieces[Move.Index(file, rank)].HasValue;
-    }
-
-    internal bool Has(CastlingRights rights) {
-        return (CastlingRights & rights) != 0;
-    }
-
-    internal bool IsEnemy(int file, int rank) {
-        return Pieces[Move.Index(file, rank)].HasValue && Pieces[Move.Index(file, rank)].Value.Color != Turn;
-    }
-
-    internal bool IsFriendly(int file, int rank) {
-        return Pieces[Move.Index(file, rank)].HasValue && Pieces[Move.Index(file, rank)].Value.Color == Turn;
     }
 
     private void Init(FENBoardState state) {
@@ -315,9 +322,12 @@ public class Board {
         if ((CastlingRights & CastlingRights.BlackQueenside) != 0) castling += "q";
         if (castling == "") castling = "-";
 
-        string enPassant = EnPassantSquare.HasValue
-            ? $"{(char)('a' + EnPassantSquare.Value.File)}{EnPassantSquare.Value.Rank + 1}"
-            : "-";
+        string enPassant = string.Empty;
+        if (EnPassantSquare.HasValue) {
+            int file = Move.FileOf(EnPassantSquare.Value);
+            int rank = Move.RankOf(EnPassantSquare.Value);
+            enPassant = $"{(char)('a' + file)}{rank + 1}";
+        }
 
         return $"{piecePlacement} {activeColor} {castling} {enPassant} {FiftyMoveCounter} 1";
     }
