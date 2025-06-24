@@ -7,7 +7,7 @@ public static class MoveGenerator {
         List<Move> moves = GeneratePseudoLegalMoves(board);
 
         Debug.Assert(moves.Count > 0, $"GenerateMoves: found no moves");
-        Debug.Assert(moves.All(move => board.Pieces[move.FromIdx].HasValue));
+        Debug.Assert(moves.All(move => board.Pieces[move.FromSquare].HasValue));
 
         int moveIndex = moves.FindIndex(m => m.CapturedPiece.HasValue && m.CapturedPiece.Value.Type == PieceType.King);
         if (moveIndex > 0) {

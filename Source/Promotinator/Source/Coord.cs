@@ -17,7 +17,7 @@ public struct Coord : IEquatable<Coord> {
     }
 
     public string ToAlgabraicNotation() {
-        char from = (char) (File + 'a');
+        char from = (char)(File + 'a');
         int to = Rank + 1;
         return $"{from}{to}";
     }
@@ -26,7 +26,7 @@ public struct Coord : IEquatable<Coord> {
         return $"{{File:{File} Rank:{Rank}}}";
     }
 
-    public override bool Equals(object obj) {
+    public override bool Equals(object? obj) {
         return obj is Coord && Equals(obj);
     }
 
