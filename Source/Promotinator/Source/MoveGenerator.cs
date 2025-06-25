@@ -68,7 +68,7 @@ public static class MoveGenerator {
         bool isPromotion = forward == 0 || forward == 7;
 
         // One square forward
-        if (!onlyAttack && board.IsEmpty(file, forward)) {
+        if (!onlyAttack && board.IsEmpty(Move.Index(file, forward))) {
             int from = Move.Index(file, rank);
             int to = Move.Index(file, forward);
             Move move = new(from, to, Move.QuietMoveFlag);
@@ -82,7 +82,7 @@ public static class MoveGenerator {
         }
 
         // Double pawn push
-        if (!onlyAttack && rank == startRank && board.IsEmpty(file, forward) && board.IsEmpty(file, forward + direction)) {
+        if (!onlyAttack && rank == startRank && board.IsEmpty(Move.Index(file, forward)) && board.IsEmpty(Move.Index(file, forward + direction))) {
             int from = Move.Index(file, rank);
             int to = Move.Index(file, forward + direction);
             moves.Add(new(from, to, Move.DoublePawnPushFlag));
@@ -143,7 +143,7 @@ public static class MoveGenerator {
             int newRank = rank + rankOffsets[i];
 
             while (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
-                if (board.IsEmpty(newFile, newRank)) {
+                if (board.IsEmpty(Move.Index(newFile, newRank))) {
                     int from = Move.Index(file, rank);
                     int to = Move.Index(newFile, newRank);
                     moves.Add(new(from, to, Move.QuietMoveFlag));
@@ -175,7 +175,7 @@ public static class MoveGenerator {
             int newRank = rank + rankOffsets[i];
 
             if (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
-                if (board.IsEmpty(newFile, newRank)) {
+                if (board.IsEmpty(Move.Index(newFile, newRank))) {
                     int from = Move.Index(file, rank);
                     int to = Move.Index(newFile, newRank);
                     moves.Add(new(from, to, Move.QuietMoveFlag));
@@ -199,7 +199,7 @@ public static class MoveGenerator {
             int newRank = rank + rankOffsets[i];
 
             while (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
-                if (board.IsEmpty(newFile, newRank)) {
+                if (board.IsEmpty(Move.Index(newFile, newRank))) {
                     int from = Move.Index(file, rank);
                     int to = Move.Index(newFile, newRank);
                     moves.Add(new(from, to, Move.QuietMoveFlag));
@@ -230,7 +230,7 @@ public static class MoveGenerator {
             int newRank = rank + rankOffsets[i];
 
             if (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
-                if (!onlyAttack && board.IsEmpty(newFile, newRank)) {
+                if (!onlyAttack && board.IsEmpty(Move.Index(newFile, newRank))) {
                     int from = Move.Index(file, rank);
                     int to = Move.Index(newFile, newRank);
                     moves.Add(new(from, to, Move.QuietMoveFlag));
@@ -247,7 +247,7 @@ public static class MoveGenerator {
         // Castling
         if (!onlyAttack) {
             if (board.Turn == Color.White) {
-                if (board.Has(CastlingRights.WhiteKingside) && board.IsEmpty(5, 0) && board.IsEmpty(6, 0) && board.ColorOfPlayerInCheck != board.Turn) {
+                if (board.Has(CastlingRights.WhiteKingside) && board.IsEmpty(Move.Index(5, 0)) && board.IsEmpty(Move.Index(6, 0)) && board.ColorOfPlayerInCheck != board.Turn) {
                     board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
                     List<Move> enemyMoves = GeneratePseudoLegalMoves(board, onlyAttack: true);
                     board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
@@ -260,7 +260,7 @@ public static class MoveGenerator {
                     }
                 }
 
-                if (board.Has(CastlingRights.WhiteQueenside) && board.IsEmpty(3, 0) && board.IsEmpty(2, 0) && board.IsEmpty(1, 0) && board.ColorOfPlayerInCheck != board.Turn) {
+                if (board.Has(CastlingRights.WhiteQueenside) && board.IsEmpty(Move.Index(3, 0)) && board.IsEmpty(Move.Index(2, 0)) && board.IsEmpty(Move.Index(1, 0)) && board.ColorOfPlayerInCheck != board.Turn) {
                     board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
                     List<Move> enemyMoves = GeneratePseudoLegalMoves(board, onlyAttack: true);
                     board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
@@ -274,7 +274,7 @@ public static class MoveGenerator {
                 }
             }
             else {
-                if (board.Has(CastlingRights.BlackKingside) && board.IsEmpty(5, 7) && board.IsEmpty(6, 7) && board.ColorOfPlayerInCheck != board.Turn) {
+                if (board.Has(CastlingRights.BlackKingside) && board.IsEmpty(Move.Index(5, 7)) && board.IsEmpty(Move.Index(6, 7)) && board.ColorOfPlayerInCheck != board.Turn) {
                     board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
                     List<Move> enemyMoves = GeneratePseudoLegalMoves(board, onlyAttack: true);
                     board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
@@ -287,7 +287,7 @@ public static class MoveGenerator {
                     }
                 }
 
-                if (board.Has(CastlingRights.BlackQueenside) && board.IsEmpty(3, 7) && board.IsEmpty(2, 7) && board.IsEmpty(1, 7) && board.ColorOfPlayerInCheck != board.Turn) {
+                if (board.Has(CastlingRights.BlackQueenside) && board.IsEmpty(Move.Index(3, 7)) && board.IsEmpty(Move.Index(2, 7)) && board.IsEmpty(Move.Index(1, 7)) && board.ColorOfPlayerInCheck != board.Turn) {
                     board.Turn = board.Turn == Color.White ? Color.Black : Color.White;
                     List<Move> enemyMoves = GeneratePseudoLegalMoves(board, onlyAttack: true);
                     board.Turn = board.Turn == Color.White ? Color.Black : Color.White;

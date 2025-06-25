@@ -215,8 +215,8 @@ public class Board {
         return IsSquareAttacked(kingSquare);
     }
 
-    public bool IsEmpty(int file, int rank) {
-        return !Pieces[Move.Index(file, rank)].HasValue;
+    public bool IsEmpty(int square) {
+        return !Pieces[square].HasValue;
     }
 
     public bool Has(CastlingRights rights) {
